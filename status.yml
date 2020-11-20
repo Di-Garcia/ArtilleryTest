@@ -1,0 +1,108 @@
+config:
+  target: "http:/"
+  plugins:
+    expect: {}
+  phases:
+    - duration: 40
+      arrivalRate: 1
+      maxVusers: 1
+  defaults:
+    headers:
+      authorization: "a"
+  processor: "./functions.js"
+
+scenarios:
+  - name: "GET all devices status - reduced version"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - log: "GET all devices status"
+      - get:
+          url: "/system-management:8080/sm/api/v1/device-management/status"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          expect:
+            - statusCode: 200
+
+  - name: "GET all devices status - complete version"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - log: "GET all devices status"
+      - get:
+          url: "/system-management:8080/sm/api/v1/device-management/status?complete=true"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          expect:
+            - statusCode: 200
+
+  - name: "GET ONE devices status"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+      - function: "generateRandomId"
+      - log: "POST create Device with ID: {{ id }}"
+      - post:
+          url: "/system-management:8080/sm/api/v1/device-management/devices/"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            id: "{{ id }}"
+          capture:
+            - json: "$.id"
+              as: "deviceIdPost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+            - hasProperty: id
+      - log: "PATCH value sampleNumber to SNN{{ deviceIdPost  }}"
+      - patch:
+          url: "/system-management:8080/sm/api/v1/metadata-management/metadata/SNN{{ deviceIdPost  }}"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            value: "SNN{{ deviceIdPost  }}"
+          expect:
+            - statusCode: 200
+      - log: "GET ONE devices status"
+      - post:
+          url: "/system-management:8080/sm/api/v1/device-management/status?sampleNumber=SNN{{  deviceIdPost  }}"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          expect:
+            - statusCode: 200

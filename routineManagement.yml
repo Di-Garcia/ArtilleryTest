@@ -1,0 +1,348 @@
+config:
+  target: "http:/"
+  plugins:
+    expect: {}
+  phases:
+    - duration: 30
+      arrivalRate: 1
+      maxVusers: 1
+  defaults:
+    headers:
+      authorization: a
+  processor: ./functions.js
+
+scenarios:
+  - name: "GET all routines"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+      - log: "GET all routines"
+      - get:
+          url: "/system-management:8080/sm/api/v1/routine-management/routines"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          expect:
+            - statusCode: 200
+            - contentType: json
+
+  - name: "POST create routine"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+      - function: "getRoutineBody"
+      - log: "POST create Routine (rand desc{{ randNum }})"
+      - post:
+          url: "/system-management:8080/sm/api/v1/routine-management/routines"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json: "{{ routineBody }}"
+          capture:
+            - json: "$.id"
+              as: "idPost"
+            - json: "$.description"
+              as: "descriptionPost"
+            - json: "$.active"
+              as: "activePost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+      - log: "Get ONE Routine ID {{idPost}}"
+      - get:
+          url: "/system-management:8080/sm/api/v1/routine-management/routines/{{ idPost }}"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          capture:
+            - json: "$.id"
+              as: "idGetOne"
+            - json: "$.description"
+              as: "descriptionGetOne"
+            - json: "$.active"
+              as: "activeGetOne"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - equals:
+                - "{{ idPost }}"
+                - "{{ idGetOne }}"
+            - equals:
+                - "{{ descriptionPost }}"
+                - "{{ descriptionGetOne }}"
+            - equals:
+                - "{{ activePost }}"
+                - "{{ activeGetOne }}"
+
+  - name: "UPDATE created routine"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+      - function: "getRoutineBody"
+      - log: "POST create Routine (rand desc{{ randNum }})"
+      - post:
+          url: "/system-management:8080/sm/api/v1/routine-management/routines"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json: "{{ routineBody }}"
+          capture:
+            - json: "$.id"
+              as: "idPost"
+            - json: "$.description"
+              as: "descriptionPost"
+            - json: "$.active"
+              as: "activePost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+      - function: "updatedRoutineBody"
+      - log: "PUT update Routine ID: {{idPost}}"
+      - put:
+          url: "/system-management:8080/sm/api/v1/routine-management/routines/{{ idPost }}"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json: "{{ routineUpdatedBody }}"
+          expect:
+            - statusCode: 200
+            - contentType: json
+      - log: "Get ONE UPDATED Routine ID: {{idPost}}"
+      - get:
+          url: "/system-management:8080/sm/api/v1/routine-management/routines/{{ idPost }}"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          capture:
+            - json: "$.id"
+              as: "idGetOne"
+            - json: "$.description"
+              as: "descriptionGetOne"
+            - json: "$.active"
+              as: "activeGetOne"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - equals:
+                - "{{ idPost }}"
+                - "{{ idGetOne }}"
+            - equals:
+                - "UPDATED description test"
+                - "{{ descriptionGetOne }}"
+            - equals:
+                - "{{ activePost }}"
+                - "{{ activeGetOne }}"
+
+  - name: "PATCH created routine"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+      - function: "getRoutineBody"
+      - log: "POST create Routine (rand desc{{ randNum }})"
+      - post:
+          url: "/system-management:8080/sm/api/v1/routine-management/routines"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json: "{{ routineBody }}"
+          capture:
+            - json: "$.id"
+              as: "idPost"
+            - json: "$.description"
+              as: "descriptionPost"
+            - json: "$.active"
+              as: "activePost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+      - log: "PATCH status of Routine ID: {{idPost}}"
+      - patch:
+          url: "/system-management:8080/sm/api/v1/routine-management/routines/{{ idPost }}"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            active: "false"
+          expect:
+            - statusCode: 200
+            - contentType: json
+      - log: "Get ONE Routine ID: {{idPost}}"
+      - get:
+          url: "/system-management:8080/sm/api/v1/routine-management/routines/{{ idPost }}"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          capture:
+            - json: "$.id"
+              as: "idGetOne"
+            - json: "$.description"
+              as: "descriptionGetOne"
+            - json: "$.active"
+              as: "activeGetOne"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - equals:
+                - "{{ idPost }}"
+                - "{{ idGetOne }}"
+            - equals:
+                - "{{ descriptionPost }}"
+                - "{{ descriptionGetOne }}"
+            - equals:
+                - "false"
+                - "{{ activeGetOne }}"
+
+  - name: "GET routine with inexistent id"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - log: "GET routine with inexistent id"
+      - get:
+          url: "/system-management:8080/sm/api/v1/routine-management/routines/999999999999"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          expect:
+            - statusCode: 404
+
+  - name: "POST with missing body values"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - log: "POST routine: {{ id }} with missing body values"
+      - post:
+          url: "/system-management:8080/sm/api/v1/routine-management/routines"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            description: "{{ description }}"
+          capture:
+            - json: "$.id"
+              as: "idPost"
+            - json: "$.description"
+              as: "descriptionPost"
+            - json: "$.active"
+              as: "activePost"
+          expect:
+            - statusCode: 400
+            - contentType: json
+
+  - name: "PATCH with missing body values"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - function: "getRoutineBody"
+      - log: "POST create Routine (rand desc{{ randNum }})"
+      - post:
+          url: "/system-management:8080/sm/api/v1/routine-management/routines"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json: "{{ routineBody }}"
+          capture:
+            - json: "$.id"
+              as: "idPost"
+            - json: "$.description"
+              as: "descriptionPost"
+            - json: "$.active"
+              as: "activePost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+
+      - log: "PATCH {{ idPost }} with missing body values"
+      - patch:
+          url: "/system-management:8080/sm/api/v1/routine-management/routines/{{idPost}}"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          capture:
+            - json: "$.id"
+              as: "idPost"
+            - json: "$.active"
+              as: "activePost"
+          expect:
+            - statusCode: 400
+            - contentType: json

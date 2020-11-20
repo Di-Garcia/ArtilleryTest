@@ -1,0 +1,373 @@
+config:
+  target: "http:/"
+  plugins:
+    expect: {}
+  phases:
+    - duration: 30
+      arrivalRate: 1
+      maxVusers: 1
+  defaults:
+    headers:
+      authorization: "a"
+  processor: "./functions.js"
+  payload:
+    path: "./mockData/metadataManagement.csv"
+    fields:
+      - "id"
+      - "name"
+      - "description"
+      - "regex"
+      - "required"
+      - "newname"
+      - "desc2"
+      - "newregex"
+      - "newrequired"
+    order: sequence
+    delimiter: ","
+    skipHeader: true
+
+scenarios:
+  - name: "Get all metadata"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - log: "GET all metadata"
+      - get:
+          url: "/system-management:8080/sm/api/v1/metadata-management/metadata/"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          expect:
+            - statusCode: 200
+
+  - name: "POST and GET Metadata"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - function: "generateRandomName"
+      - log: "POST mocked metadata"
+      - post:
+          url: "/system-management:8080/sm/api/v1/metadata-management/metadata"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            name: "{{name}}"
+            description: "{{description}}"
+            regex: "{{regex}}"
+            required: "{{required}}"
+          capture:
+            - json: "$.id"
+              as: "idPost"
+          expect:
+            - statusCode: 201
+
+      - log: "GET getOneMetadata from its id: {{ idPost }}"
+      - get:
+          url: "/system-management:8080/sm/api/v1/metadata-management/metadata/{{idPost}}"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          expect:
+            - statusCode: 200
+
+  - name: "POST, PUT and GET Metadata"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - function: "generateRandomName"
+      - log: "POST Metadata Mocked data"
+      - post:
+          url: "/system-management:8080/sm/api/v1/metadata-management/metadata"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            name: "{{name}}"
+            description: "{{description}}"
+            regex: "{{regex}}"
+            required: "{{required}}"
+          capture:
+            - json: "$.id"
+              as: "idPost"
+          expect:
+            - statusCode: 201
+
+      - function: "generateRandomNewName"
+      - log: "PUT updateMetadata json: description {{ idPost }} "
+      - put:
+          url: "/system-management:8080/sm/api/v1/metadata-management/metadata/{{idPost}}"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            name: "{{ newname }}"
+            description: "{{desc2}}"
+            regex: "{{ newregex }}"
+          expect:
+            - statusCode: 200
+
+      - log: "GET getOneMetadata {{ idPost }}"
+      - get:
+          url: "/system-management:8080/sm/api/v1/metadata-management/metadata/{{idPost}}"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          capture:
+            - json: "$.name"
+              as: "nameGet"
+            - json: "$.description"
+              as: "descriptionGet"
+            - json: "$.regex"
+              as: "regexGet"
+          expect:
+            - statusCode: 200
+            - equals:
+                - "{{newname}}"
+                - "{{nameGet}}"
+            - equals:
+                - "{{desc2}}"
+                - "{{descriptionGet}}"
+            - equals:
+                - "{{newregex}}"
+                - "{{regexGet}}"
+
+  - name: "POST, PATCH and GET Metadata"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - function: "generateRandomName"
+      - log: "POST Metadata Mocked data"
+      - post:
+          url: "/system-management:8080/sm/api/v1/metadata-management/metadata"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            name: "{{name}}"
+            description: "{{description}}"
+            regex: "{{regex}}"
+            required: "{{required}}"
+          capture:
+            - json: "$.id"
+              as: "idPost"
+          expect:
+            - statusCode: 201
+
+      - log: "PATCH {{idPost}}"
+      - patch:
+          url: "/system-management:8080/sm/api/v1/metadata-management/metadata/{{idPost}}"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            active: false
+          expect:
+            - statusCode: 200
+      - log: "GET getOneMetadata {{ idPost }}"
+      - get:
+          url: "/system-management:8080/sm/api/v1/metadata-management/metadata/{{idPost}}"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          capture:
+            - json: "$.active"
+              as: "activeGet"
+          expect:
+            - statusCode: 200
+            - equals:
+                - false
+                - "{{activeGet}}"
+
+  - name: "Get with wrong id Metadata"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+      - function: "generateRandomId"
+      - log: "GET getOneMetadata 9999{{ id }}"
+      - get:
+          url: "/system-management:8080/sm/api/v1/metadata-management/metadata/9999{{id}}"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          expect:
+            - statusCode: 404
+
+  - name: "POST with missing values Metadata"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - function: "generateRandomName"
+      - log: "POST Metadata Mocked data"
+      - post:
+          url: "/system-management:8080/sm/api/v1/metadata-management/metadata"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            name: "{{name}}"
+            description: "{{description}}"
+          capture:
+            - json: "$.id"
+              as: "idPost"
+          expect:
+            - statusCode: 400
+
+  - name: "PUT with missing values"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - function: "generateRandomName"
+      - log: "POST Metadata Mocked data"
+      - post:
+          url: "/system-management:8080/sm/api/v1/metadata-management/metadata"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            name: "{{name}}"
+            description: "{{description}}"
+            regex: "{{regex}}"
+            required: "{{required}}"
+          capture:
+            - json: "$.id"
+              as: "idPost"
+          expect:
+            - statusCode: 201
+
+      - function: "generateRandomNewName"
+      - log: "PUT updateMetadata json: description {{ idPost }} "
+      - put:
+          url: "/system-management:8080/sm/api/v1/metadata-management/metadata/{{idPost}}"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          expect:
+            - statusCode: 200
+
+  - name: "PATCH with missing values"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - function: "generateRandomName"
+      - log: "POST"
+      - post:
+          url: "/system-management:8080/sm/api/v1/metadata-management/metadata"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            name: "{{name}}"
+            description: "{{description}}"
+            regex: "{{regex}}"
+            required: "{{required}}"
+          capture:
+            - json: "$.id"
+              as: "idPost"
+          expect:
+            - statusCode: 201
+
+      - log: "PATCH {{idPost}}"
+      - patch:
+          url: "/system-management:8080/sm/api/v1/metadata-management/metadata/{{idPost}}"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          expect:
+            - statusCode: 400

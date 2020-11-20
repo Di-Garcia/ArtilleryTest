@@ -1,0 +1,373 @@
+config:
+    target: 'http:/'
+    plugins:
+        expect: {}
+    phases:
+      - duration: 30
+        arrivalRate: 1
+        maxVusers: 1
+    defaults:
+      headers:
+        authorization: 'a'
+    processor: './functions.js'
+    payload:
+      -
+        path: './mockData/bindMetadata.csv'
+        fields:
+          - 'metadataId'
+          - 'deviceId'
+          - 'value'
+          - 'value2'
+        order: sequence
+        delimiter: ','
+        skipHeader: true
+      
+      -
+        path: './mockData/metadataManagement.csv'
+        fields:
+            - 'id'
+            - 'name'
+            - 'description'
+            - 'regex'
+            - 'required'
+            - 'newname'
+            - 'desc2'
+            - 'newregex'
+            - 'newrequired'
+        order: sequence
+        delimiter: ','
+        skipHeader: true
+  
+scenarios:
+
+      - 
+        name: 'POST to create a metadata relation'
+        flow:
+            - log: 'POST Login'
+            - post:
+                url: '/pm-user-management:3000/api/v1/auth/login'
+                json:
+                  username: 'adriana'
+                  password: '123456'
+                capture:
+                  - json: '$.token.access_token'
+                    as: 'auth_token'
+                expect:
+                  - statusCode: 200
+                  - contentType: json
+                  - hasProperty: token
+            - think: 2
+            - function: 'generateRandomId'
+            - log: 'POST create Device with ID: {{ id }}'
+            - post:
+                url: '/system-management:8080/sm/api/v1/device-management/devices/'
+                headers:
+                    authorization: 'Bearer {{ auth_token }}'
+                json:
+                    id: '{{ id }}'
+                capture:
+                    - json: '$.id'
+                      as: 'deviceIdPost'
+                expect:
+                    - statusCode: 201
+                    - contentType: json
+                    - hasProperty: id
+            - function: 'generateRandomName'
+            - log: 'POST create Metadata with name: {{ name }} '
+            - post:
+                url: '/system-management:8080/sm/api/v1/metadata-management/metadata'
+                headers:
+                    authorization: 'Bearer {{ auth_token }}'
+                json:
+                    name: '{{name}}'
+                    description: '{{ description }}'
+                    regex: '{{ regex }}'
+                    required: '{{ required }}'
+                capture:
+                    - json: '$.id'
+                      as: 'metadataIdPost'
+                expect:
+                    - statusCode: 201
+            - function: 'generateRandomNewValueWithRegex'
+            - log: 'POST create relation between Device: {{ deviceIdPost }}. Metada: {{ metadataIdPost }}. And valid regex'
+            - post:
+                url: '/system-management:8080/sm/api/v1/device-management/bind/metadata'
+                headers:
+                  authorization: 'Bearer {{ auth_token }}'
+                json:
+                    metadata_id: '{{ metadataIdPost}}'
+                    device_id: '{{deviceIdPost}}'
+                    value: '{{ value }}'
+                capture:
+                  - json: '$.id'
+                    as: 'bindIdPost'
+                  - json: '$.device_id'
+                    as: 'deviceIdPost'
+                  - json: '$.metadata_id'
+                    as: 'metadataIdPost'
+                expect:
+                  - statusCode: 201
+            - log: 'GET  device {{ deviceIdPost }} and metadata {{ metadataIdPost }}'
+            - get:
+                url: '/system-management:8080/sm/api/v1/device-management/bind/metadata?device_id={{ deviceIdPost }}&metadata_id={{metadataIdPost}}'
+                headers:
+                  authorization: 'Bearer {{ auth_token }}'
+                expect:
+                  - statusCode: 200
+
+      - 
+        name: 'GET all relations between Devices and Metadatas'
+        flow:
+            - log: 'POST Login'
+            - post:
+                url: '/pm-user-management:3000/api/v1/auth/login'
+                json:
+                  username: 'adriana'
+                  password: '123456'
+                capture:
+                  - json: '$.token.access_token'
+                    as: 'auth_token'
+                expect:
+                  - statusCode: 200
+                  - contentType: json
+                  - hasProperty: token
+            - think: 2
+
+            - log: 'GET all bindDevice metada'
+            - get:
+                url: '/system-management:8080/sm/api/v1/device-management/bind/metadata'
+                headers:
+                  authorization: 'Bearer {{ auth_token }}'
+                expect:
+                    - statusCode: 200
+
+      - 
+        name: 'DELETE relations between Device and Metadata'
+        flow:
+            - log: 'POST Login'
+            - post:
+                url: '/pm-user-management:3000/api/v1/auth/login'
+                json:
+                  username: 'adriana'
+                  password: '123456'
+                capture:
+                  - json: '$.token.access_token'
+                    as: 'auth_token'
+                expect:
+                  - statusCode: 200
+                  - contentType: json
+                  - hasProperty: token
+            - think: 2
+
+            - function: 'generateRandomId'
+            - log: 'POST create Device with ID: {{ id }}'
+            - post:
+                url: '/system-management:8080/sm/api/v1/device-management/devices/'
+                headers:
+                    authorization: 'Bearer {{ auth_token }}'
+                json:
+                    id: '{{ id }}'
+                capture:
+                    - json: '$.id'
+                      as: 'deviceIdPost'
+                expect:
+                    - statusCode: 201
+                    - contentType: json
+                    - hasProperty: id
+
+            - function: 'generateRandomName'
+            - log: 'POST create Metadata with name: {{ name }} '
+            - post:
+                url: '/system-management:8080/sm/api/v1/metadata-management/metadata'
+                headers:
+                    authorization: 'Bearer {{ auth_token }}'
+                json:
+                    name: '{{name}}'
+                    description: '{{ description }}'
+                    regex: '{{ regex }}'
+                    required: '{{ required }}'
+                capture:
+                    - json: '$.id'
+                      as: 'metadataIdPost'
+                expect:
+                    - statusCode: 201
+
+            - function: 'generateRandomNewValueWithRegex'
+            - log: 'POST create relation between Device: {{ deviceIdPost }}. Metada: {{ metadataIdPost }}. And valid regex'
+            - post:
+                url: '/system-management:8080/sm/api/v1/device-management/bind/metadata'
+                headers:
+                  authorization: 'Bearer {{ auth_token }}'
+                json:
+                    metadata_id: '{{ metadataIdPost}}'
+                    device_id: '{{deviceIdPost}}'
+                    value: '{{ value }}'
+                capture:
+                  - json: '$.id'
+                    as: 'bindIdPost'
+                  - json: '$.device_id'
+                    as: 'deviceIdPost'
+                  - json: '$.metadata_id'
+                    as: 'metadataIdPost'
+                expect:
+                  - statusCode: 201
+
+            - log: 'DELETE relation. Unbind deviceId: {{ deviceIdPost }} and metadataId: {{ metadataIdPost }}'
+            - delete:
+                url: '/system-management:8080/sm/api/v1/device-management/bind/{{deviceIdPost}}/metadata/{{metadataIdPost}}'
+                headers:
+                    authorization: 'Bearer {{ auth_token }}'
+                expect:
+                    - statusCode: 204
+
+            - log: 'GET  device {{ deviceIdPost }} and metadata {{ metadataIdPost }}'
+            - get:
+                url: '/system-management:8080/sm/api/v1/device-management/bind/metadata?device_id={{ deviceIdPost }}&metadata_id={{metadataIdPost}}'
+                headers:
+                  authorization: 'Bearer {{ auth_token }}'
+                expect:
+                  - statusCode: 200
+
+      - 
+        name: 'PATCH metadata SampleNumber'
+        flow:
+            - log: 'POST Login'
+            - post:
+                url: '/pm-user-management:3000/api/v1/auth/login'
+                json:
+                  username: 'adriana'
+                  password: '123456'
+                capture:
+                  - json: '$.token.access_token'
+                    as: 'auth_token'
+                expect:
+                  - statusCode: 200
+                  - contentType: json
+                  - hasProperty: token
+            - think: 2
+
+            - function: 'generateRandomId'
+            - log: 'POST create Device with ID: {{ id }}'
+            - post:
+                url: '/system-management:8080/sm/api/v1/device-management/devices/'
+                headers:
+                    authorization: 'Bearer {{ auth_token }}'
+                json:
+                    id: '{{ id }}'
+                capture:
+                    - json: '$.id'
+                      as: 'deviceIdPost'
+                expect:
+                    - statusCode: 201
+                    - contentType: json
+                    - hasProperty: id
+            - log: 'PATCH force metadata SampleNumber to SN{{deviceIdPost}}'
+            - patch:
+                url: '/system-management:8080/sm/api/v1/device-management/bind/{{deviceIdPost}}/metadata/1'
+                headers:
+                    authorization: 'Bearer {{ auth_token }}'
+                json:
+                    value: 'SN{{ deviceIdPost}}'
+                    force: true
+                capture:
+                    - json: '$.device_id'
+                      as: 'deviceIdPost2'
+                    - json: '$.metadata_id'
+                      as: 'metadataIdPost'
+                expect:
+                    - statusCode: 200
+            - log: 'GET  device: {{ deviceIdPost2 }} and metadata: 1 (sample number)'
+            - get:
+                url: '/system-management:8080/sm/api/v1/device-management/bind/metadata?device_id={{ deviceIdPost2 }}&metadata_id=1'
+                headers:
+                  authorization: 'Bearer {{ auth_token }}'
+                expect:
+                - statusCode: 200
+      
+      - 
+        name: 'GET with wrong id'
+        flow:
+            - log: 'POST Login'
+            - post:
+                url: '/pm-user-management:3000/api/v1/auth/login'
+                json:
+                  username: 'adriana'
+                  password: '123456'
+                capture:
+                  - json: '$.token.access_token'
+                    as: 'auth_token'
+                expect:
+                  - statusCode: 200
+                  - contentType: json
+                  - hasProperty: token
+            - think: 2
+
+            - log: 'GET  device {{ devId }} and metadata {{ metaId }}'
+            - get:
+                url: '/system-management:8080/sm/api/v1/device-management/bind/metadata?device_id={{ deviceId }}999&metadata_id={{metadataId}}999'
+                headers:
+                  authorization: 'Bearer {{ auth_token }}'
+                expect:
+                  - statusCode: 200
+                  
+      - 
+          name: 'POST with missing values'
+          flow:
+              - log: 'POST Login'
+              - post:
+                  url: '/pm-user-management:3000/api/v1/auth/login'
+                  json:
+                    username: 'adriana'
+                    password: '123456'
+                  capture:
+                    - json: '$.token.access_token'
+                      as: 'auth_token'
+                  expect:
+                    - statusCode: 200
+                    - contentType: json
+                    - hasProperty: token
+              - think: 2
+              
+              - log: 'POST regex force'
+              - post:
+                  url: '/system-management:8080/sm/api/v1/device-management/bind/metadata'
+                  headers:
+                    authorization: 'Bearer {{ auth_token }}'
+                  json:
+                    metadata_id: '{{ metadataIdPost}}'
+                    device_id: '{{deviceIdPost}}'
+                  capture:
+                    - json: '$.id'
+                      as: 'idPost'
+                    - json: '$.device_id'
+                      as: 'devId'
+                    - json: '$.metadata_id'
+                      as: 'metaId'
+                  expect:
+                    - statusCode: 400
+                    
+      - 
+        name: 'DELETE with missing values'
+        flow:
+            - log: 'POST Login'
+            - post:
+                url: '/pm-user-management:3000/api/v1/auth/login'
+                json:
+                  username: 'adriana'
+                  password: '123456'
+                capture:
+                  - json: '$.token.access_token'
+                    as: 'auth_token'
+                expect:
+                  - statusCode: 200
+                  - contentType: json
+                  - hasProperty: token
+            - think: 2
+
+            - log: 'DELETE regex force'
+            - delete:
+                url: '/system-management:8080/sm/api/v1/device-management/bind/999999/metadata/999999'
+                headers:
+                  authorization: 'Bearer {{ auth_token }}'
+                expect:
+                  - statusCode: 404

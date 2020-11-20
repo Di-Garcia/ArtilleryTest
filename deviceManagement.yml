@@ -1,0 +1,240 @@
+config:
+  target: "http:/"
+  plugins:
+    expect: {}
+  phases:
+    - duration: 30
+      arrivalRate: 1
+      maxVusers: 1
+  processor: "./functions.js"
+  payload:
+    path: "./mockData/deviceManagement.csv"
+    fields:
+      - image_path
+    order: sequence
+    delimiter: ","
+    skipHeader: true
+scenarios:
+  - name: "GET all devices"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - log: "GET all devices"
+      - get:
+          url: "/system-management:8080/sm/api/v1/device-management/devices/"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          expect:
+            - statusCode: 200
+            - contentType: json
+
+  - name: "POST and GET Device"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - function: "generateRandomId"
+      - log: "POST createDevice {{ id }}"
+      - post:
+          url: "/system-management:8080/sm/api/v1/device-management/devices/"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            id: "{{ id }}"
+          capture:
+            - json: "$.id"
+              as: "idPost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+            - hasProperty: id
+            - hasProperty: created_at
+            - hasProperty: updated_at
+            - equals:
+                - "{{ id }}"
+                - "{{ idPost }}"
+
+      - log: "GET getOneDevice {{ id }}"
+      - get:
+          url: "/system-management:8080/sm/api/v1/device-management/devices/{{ idPost }}"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          expect:
+            - statusCode: 200
+            - contentType: json
+
+  - name: "POST, PUT and GET Device"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - function: "generateRandomId"
+      - log: "POST createDevice {{ id }}"
+      - post:
+          url: "/system-management:8080/sm/api/v1/device-management/devices/"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            id: "{{ id }}"
+          capture:
+            - json: "$.id"
+              as: "idPost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+            - hasProperty: id
+            - hasProperty: updated_at
+            - hasProperty: created_at
+            - equals:
+                - "{{ id }}"
+                - "{{ idPost }}"
+
+      - log: "PUT device {{ id }}"
+      - put:
+          url: "/system-management:8080/sm/api/v1/device-management/devices/{{ idPost }}"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            image_path: "{{ image_path }}_updated"
+          capture:
+            - json: "$.id"
+              as: "idPut"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: id
+            - hasProperty: updated_at
+            - hasProperty: created_at
+            - equals:
+                - "{{ id }}"
+                - "{{ idPut }}"
+
+      - log: "GET getOneDevice {{ id }}"
+      - get:
+          url: "/system-management:8080/sm/api/v1/device-management/devices/{{ idPost }}"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          capture:
+            - json: "$.id"
+              as: "idGet"
+            - json: "$.img_path"
+              as: "img_pathGet"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - equals:
+                - "{{ id }}"
+                - "{{ idGet }}"
+            - equals:
+                - "{{ img_path }}"
+                - "{{ img_pathGet }}"
+
+  - name: "POST with missing id value and PUT with missing values"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - log: "POST createDevice with missing id value. Device ID is set to be auto increment primary key"
+      - post:
+          url: "/system-management:8080/sm/api/v1/device-management/devices/"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          capture:
+            - json: "$.id"
+              as: "idPost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+            - hasProperty: id
+            - hasProperty: updated_at
+            - hasProperty: created_at
+
+      - log: "PUT update device {{ idPost }} image_path"
+      - put:
+          url: "/system-management:8080/sm/api/v1/device-management/devices/{{ idPost }}"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            image_path: "{{ image_path }}_updated"
+          capture:
+            - json: "$.id"
+              as: "idPut"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: id
+            - hasProperty: updated_at
+            - hasProperty: created_at
+            - equals:
+                - "{{ idPost }}"
+                - "{{ idPut }}"
+
+  - name: "GET with inexistent id"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - log: "GET createDevice inexistent id"
+      - get:
+          url: "/system-management:8080/sm/api/v1/device-management/devices/99999999999"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          expect:
+            - statusCode: 404
+            - contentType: json

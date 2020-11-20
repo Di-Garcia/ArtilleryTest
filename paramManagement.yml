@@ -1,0 +1,541 @@
+config:
+  target: "http:/"
+  plugins:
+    expect: {}
+  phases:
+    - duration: 30
+      arrivalRate: 1
+      maxVusers: 1
+  defaults:
+    headers:
+      authorization: "a"
+  processor: "./functions.js"
+  payload:
+    path: "./mockData/paramManagement.csv"
+    fields:
+      - key
+      - full_description
+      - short_description
+      - unit
+      - unit_abbreviation
+      - type
+      - active
+    order: sequence
+    delimiter: ","
+    skipHeader: true
+
+scenarios:
+  - name: "GET ALL params"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+      - log: "GET all params"
+      - get:
+          url: "/system-management:8080/sm/api/v1/param-management/params"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          expect:
+            - statusCode: 200
+
+  - name: "POST create param"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+      - log: "POST create param: artillery_test_{{id}}_{{key}}"
+      - function: "generateRandomId"
+      - post:
+          url: "/system-management:8080/sm/api/v1/param-management/params"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            key: "artillery_test_{{ id }}_{{ key }}"
+            full_description: "{{ full_description }}"
+            short_description: "{{ short_description }}"
+            unit: "{{ unit }}"
+            unit_abbreviation: "{{ unit_abbreviation }}"
+            type: "{{ type }}"
+          capture:
+            - json: "$.key"
+              as: "keyPost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+            - hasProperty: key
+            - hasProperty: full_description
+            - hasProperty: short_description
+            - hasProperty: unit
+            - hasProperty: unit_abbreviation
+            - hasProperty: type
+            - equals:
+                - "artillery_test_{{ id }}_{{ key }}"
+                - "{{ keyPost }}"
+      - log: "GET ONE params: artillery_test_{{ id }}_{{ key }}"
+      - get:
+          url: "/system-management:8080/sm/api/v1/param-management/params/artillery_test_{{ id }}_{{ key }}"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          capture:
+            - json: "$.key"
+              as: "keyParamsGetOne"
+          expect:
+            - statusCode: 200
+            - equals:
+                - "artillery_test_{{ id }}_{{ key }}"
+                - "{{ keyParamsGetOne }}"
+
+  - name: "PUT uptade param"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+      - log: "POST create param: artillery_test_{{id}}_{{key}}"
+      - function: "generateRandomId"
+      - post:
+          url: "/system-management:8080/sm/api/v1/param-management/params"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            key: "artillery_test_{{id}}_{{key}}"
+            full_description: "{{ full_description }}"
+            short_description: "{{ short_description }}"
+            unit: "{{ unit }}"
+            unit_abbreviation: "{{ unit_abbreviation }}"
+            type: "{{ type }}"
+          capture:
+            - json: "$.key"
+              as: "keyPost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+            - hasProperty: key
+            - hasProperty: full_description
+            - hasProperty: short_description
+            - hasProperty: unit
+            - hasProperty: unit_abbreviation
+            - hasProperty: type
+            - equals:
+                - "artillery_test_{{id}}_{{key}}"
+                - "{{ keyPost }}"
+      - log: "PUT update param: {{ keyPost }}"
+      - put:
+          url: "/system-management:8080/sm/api/v1/param-management/params/{{ keyPost }}"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            full_description: "UPDATED {{ full_description }}"
+            short_description: "UPDATED {{ short_description }}"
+            unit: "UPDATED {{ unit }}"
+            unit_abbreviation: "UPDATED {{ unit_abbreviation }}"
+            type: "{{ type }}"
+          capture:
+            - json: "$.key"
+              as: "keyParamsPut"
+            - json: "$.full_description"
+              as: "full_descriptionPut"
+            - json: "$.short_description"
+              as: "short_descriptionPut"
+            - json: "$.unit"
+              as: "unitPut"
+            - json: "$.unit_abbreviation"
+              as: "unit_abbreviationPut"
+            - json: "$.type"
+              as: "typePut"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: key
+            - hasProperty: full_description
+            - hasProperty: short_description
+            - hasProperty: unit
+            - hasProperty: unit_abbreviation
+            - hasProperty: type
+            - equals:
+                - "{{ keyPost }}"
+                - "{{ keyParamsPut }}"
+            - equals:
+                - "UPDATED {{ full_description }}"
+                - "{{ full_descriptionPut }}"
+            - equals:
+                - "UPDATED {{ short_description }}"
+                - "{{ short_descriptionPut }}"
+            - equals:
+                - "UPDATED {{ unit }}"
+                - "{{ unitPut }}"
+            - equals:
+                - "UPDATED {{ unit_abbreviation }}"
+                - "{{ unit_abbreviationPut }}"
+      - log: "GET ONE params: {{ keyPost }}"
+      - get:
+          url: "/system-management:8080/sm/api/v1/param-management/params/artillery_test_{{ id }}_{{ key }}"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          capture:
+            - json: "$.key"
+              as: "keyParamsGetOne"
+            - json: "$.full_description"
+              as: "full_descriptionGetOne"
+            - json: "$.short_description"
+              as: "short_descriptionGetOne"
+            - json: "$.unit"
+              as: "unitGetOne"
+            - json: "$.unit_abbreviation"
+              as: "unit_abbreviationGetOne"
+        expect:
+          - statusCode: 200
+          - equals:
+              - "{{ keyPost }}"
+              - "{{ keyParamsGetOne }}"
+          - equals:
+              - "{{ full_descriptionPut }}"
+              - "{{ full_descriptionGetOne }}"
+          - equals:
+              - "{{ short_descriptionPut }}"
+              - "{{ short_descriptionGetOne }}"
+          - equals:
+              - "{{ unitPut }}"
+              - "{{ unitGetOne }}"
+          - equals:
+              - "{{ unit_abbreviationPut }}"
+              - "{{ unit_abbreviationGetOne }}"
+          - equals:
+              - "{{ typePut }}"
+              - "{{ typeGetOne }}"
+
+  - name: "PATCH param status"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+      - log: "POST create param: artillery_test_{{id}}_{{key}}"
+      - function: "generateRandomId"
+      - post:
+          url: "/system-management:8080/sm/api/v1/param-management/params"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            key: "artillery_test_{{id}}_{{key}}"
+            full_description: "{{ full_description }}"
+            short_description: "{{ short_description }}"
+            unit: "{{ unit }}"
+            unit_abbreviation: "{{ unit_abbreviation }}"
+            type: "{{ type }}"
+          capture:
+            - json: "$.key"
+              as: "keyPost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+            - hasProperty: key
+            - hasProperty: full_description
+            - hasProperty: short_description
+            - hasProperty: unit
+            - hasProperty: unit_abbreviation
+            - hasProperty: type
+            - equals:
+                - "artillery_test_{{id}}_{{key}}"
+                - "{{ keyPost }}"
+      - log: "PATCH param status: {{ keyPost }}"
+      - patch:
+          url: "/system-management:8080/sm/api/v1/param-management/params/{{ keyPost }}"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            active: false
+          capture:
+            - json: "$.key"
+              as: "keyParamsPatch"
+            - json: "$.full_description"
+              as: "full_descriptionPatch"
+            - json: "$.short_description"
+              as: "short_descriptionPatch"
+            - json: "$.unit"
+              as: "unitPatch"
+            - json: "$.unit_abbreviation"
+              as: "unit_abbreviationPatch"
+            - json: "$.type"
+              as: "typePatch"
+            - json: "$.active"
+              as: "activePatch"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: key
+            - hasProperty: full_description
+            - hasProperty: short_description
+            - hasProperty: unit
+            - hasProperty: unit_abbreviation
+            - hasProperty: type
+            - equals:
+                - "{{ keyPost }}"
+                - "{{ keyParamsPatch }}"
+            - equals:
+                - false
+                - "{{ activePatch }}"
+      - log: "GET ONE params: {{ keyPost }}"
+      - get:
+          url: "/system-management:8080/sm/api/v1/param-management/params/artillery_test_{{ id }}_{{ key }}"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          capture:
+            - json: "$.key"
+              as: "keyParamsGetOne"
+            - json: "$.active"
+              as: "activeGetOne"
+          expect:
+            - statusCode: 200
+            - equals:
+                - "{{ keyPost }}"
+                - "{{ keyParamsGetOne }}"
+            - equals:
+                - false
+                - "{{ activeGetOne }}"
+
+  - name: "GET param Timeout"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+      - log: "GET all params"
+      - get:
+          url: "/system-management:8080/sm/api/v1/param-management/timeout"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          expect:
+            - statusCode: 200
+
+  - name: "PUT update param Timeout"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+      - log: "PUT update params Timeout"
+      - put:
+          url: "/system-management:8080/sm/api/v1/param-management/timeout"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            timeout: 1801
+          expect:
+            - statusCode: 200
+          capture:
+            - json: "$.id"
+              as: "paramsTimeoutIdPut"
+            - json: "$.timeout"
+              as: "keyParamsTimeoutValuePut"
+      - log: "GET updated params Timeout"
+      - get:
+          url: "/system-management:8080/sm/api/v1/param-management/timeout"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          capture:
+            - json: "$.id"
+              as: "paramsTimeoutIdGET"
+            - json: "$.timeout"
+              as: "keyParamsTimeoutValueGET"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - equals:
+                - "{{ paramsTimeoutIdPut }}"
+                - "{{ paramsTimeoutIdGET }}"
+            - equals:
+                - "{{ keyParamsTimeoutValuePut }}"
+                - "{{ keyParamsTimeoutValueGET }}"
+
+  - name: "POST params with missing values"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - log: "POST params"
+      - post:
+          url: "/system-management:8080/sm/api/v1/param-management/params"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            unit: "bytes"
+            unit_abbreviation: "b"
+            type: "integer"
+          expect:
+            - statusCode: 400
+
+  - name: "GET one params with wrong values"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - log: "GET param with wrong value"
+      - get:
+          url: "/system-management:8080/sm/api/v1/param-management/params/param_not_alive"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          capture:
+            - json: "$.key"
+              as: "keyParamsGet"
+          expect:
+            - statusCode: 404
+  - name: "PUT params with missing values"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - log: "PUT param with missing body value"
+      - put:
+          url: "/system-management:8080/sm/api/v1/param-management/params/{{ keyParamsPost }}"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            ful_description: "{{ full_descriptionParams }} UPDATED"
+            short_description: "{{ short_descriptionParams }} UPDATED"
+            unit: "{{ unitParams }} UPDATED"
+            unit_abbreviation: "{{ unit_abbreviationParams }} UPDATED"
+            type: "{{ typeParams }} UPDATED"
+          expect:
+            - statusCode: 400
+  - name: "PATCH with missing value"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - log: "POST create param: artillery_test_{{id}}_{{key}}"
+      - function: "generateRandomId"
+      - post:
+          url: "/system-management:8080/sm/api/v1/param-management/params"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            key: "artillery_test_{{ id }}_{{ key }}"
+            full_description: "{{ full_description }}"
+            short_description: "{{ short_description }}"
+            unit: "{{ unit }}"
+            unit_abbreviation: "{{ unit_abbreviation }}"
+            type: "{{ type }}"
+          capture:
+            - json: "$.key"
+              as: "keyPost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+            - hasProperty: key
+            - hasProperty: full_description
+            - hasProperty: short_description
+            - hasProperty: unit
+            - hasProperty: unit_abbreviation
+            - hasProperty: type
+            - equals:
+                - "artillery_test_{{ id }}_{{ key }}"
+                - "{{ keyPost }}"
+
+      - log: "PATCH params"
+      - patch:
+          url: "/system-management:8080/sm/api/v1/param-management/params/{{ keyParamsPost }}"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          expect:
+            - statusCode: 400

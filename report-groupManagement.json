@@ -1,0 +1,303 @@
+{
+  "aggregate": {
+    "timestamp": "2020-11-16T21:41:17.216Z",
+    "scenariosCreated": 30,
+    "scenariosCompleted": 30,
+    "requestsCompleted": 75,
+    "latency": {
+      "min": 44.5,
+      "max": 332.7,
+      "median": 158.9,
+      "p95": 229,
+      "p99": 311.2
+    },
+    "rps": {
+      "count": 75,
+      "mean": 2.55
+    },
+    "scenarioDuration": {
+      "min": 267.9,
+      "max": 678.1,
+      "median": 387.9,
+      "p95": 675,
+      "p99": 678.1
+    },
+    "scenarioCounts": {
+      "POST and GET group": 5,
+      "GET device inexistent id": 8,
+      "GET all groups": 9,
+      "POST, incomplete data NO ID": 3,
+      "POST, PUT and GET group": 5
+    },
+    "errors": {},
+    "codes": {
+      "200": 54,
+      "201": 10,
+      "400": 3,
+      "404": 8
+    },
+    "matches": 0,
+    "customStats": {},
+    "counters": {},
+    "scenariosAvoided": 0,
+    "phases": [
+      {
+        "duration": 30,
+        "arrivalRate": 1,
+        "maxVusers": 1
+      }
+    ]
+  },
+  "intermediate": [
+    {
+      "timestamp": "2020-11-16T21:40:56.695Z",
+      "scenariosCreated": 9,
+      "scenariosCompleted": 9,
+      "requestsCompleted": 23,
+      "latency": {
+        "min": 51.3,
+        "max": 332.7,
+        "median": 159.5,
+        "p95": 265.4,
+        "p99": 332.7
+      },
+      "rps": {
+        "count": 23,
+        "mean": 2.57
+      },
+      "scenarioDuration": {
+        "min": 274.3,
+        "max": 678.1,
+        "median": 397.8,
+        "p95": 678.1,
+        "p99": 678.1
+      },
+      "scenarioCounts": {
+        "POST and GET group": 3,
+        "GET device inexistent id": 1,
+        "GET all groups": 3,
+        "POST, incomplete data NO ID": 1,
+        "POST, PUT and GET group": 1
+      },
+      "errors": {},
+      "codes": {
+        "200": 17,
+        "201": 4,
+        "400": 1,
+        "404": 1
+      },
+      "matches": 0,
+      "latencies": [
+        332704614,
+        148111754,
+        126049363,
+        214419147,
+        51339116,
+        229099896,
+        153826545,
+        116381935,
+        217621874,
+        156010367,
+        127245333,
+        212961440,
+        145551685,
+        228626073,
+        161462259,
+        221371136,
+        159491712,
+        225677927,
+        183649928,
+        133423816,
+        117119059,
+        214278893,
+        146514261
+      ],
+      "customStats": {},
+      "counters": {},
+      "concurrency": 0,
+      "pendingRequests": 0,
+      "scenariosAvoided": 0
+    },
+    {
+      "timestamp": "2020-11-16T21:41:06.693Z",
+      "scenariosCreated": 10,
+      "scenariosCompleted": 10,
+      "requestsCompleted": 24,
+      "latency": {
+        "min": 49.5,
+        "max": 246.8,
+        "median": 159.7,
+        "p95": 231.1,
+        "p99": 246.8
+      },
+      "rps": {
+        "count": 24,
+        "mean": 2.4
+      },
+      "scenarioDuration": {
+        "min": 275.8,
+        "max": 655.5,
+        "median": 388.5,
+        "p95": 655.5,
+        "p99": 655.5
+      },
+      "scenarioCounts": {
+        "GET all groups": 4,
+        "GET device inexistent id": 2,
+        "POST, incomplete data NO ID": 1,
+        "POST, PUT and GET group": 1,
+        "POST and GET group": 2
+      },
+      "errors": {},
+      "codes": {
+        "200": 18,
+        "201": 3,
+        "400": 1,
+        "404": 2
+      },
+      "matches": 0,
+      "latencies": [
+        224370176,
+        145722798,
+        219873539,
+        49538045,
+        246836726,
+        146078758,
+        223616217,
+        158857929,
+        135571198,
+        121500096,
+        215103077,
+        151531186,
+        218696012,
+        163624336,
+        132721334,
+        222039896,
+        157229869,
+        211855923,
+        160544230,
+        215994489,
+        51776355,
+        221572286,
+        150685327,
+        118597067
+      ],
+      "customStats": {},
+      "counters": {},
+      "concurrency": 0,
+      "pendingRequests": 0,
+      "scenariosAvoided": 0
+    },
+    {
+      "timestamp": "2020-11-16T21:41:16.692Z",
+      "scenariosCreated": 10,
+      "scenariosCompleted": 10,
+      "requestsCompleted": 26,
+      "latency": {
+        "min": 44.5,
+        "max": 229,
+        "median": 151.1,
+        "p95": 229,
+        "p99": 229
+      },
+      "rps": {
+        "count": 26,
+        "mean": 2.6
+      },
+      "scenarioDuration": {
+        "min": 267.9,
+        "max": 670,
+        "median": 331,
+        "p95": 670,
+        "p99": 670
+      },
+      "scenarioCounts": {
+        "GET device inexistent id": 5,
+        "POST, PUT and GET group": 3,
+        "GET all groups": 2
+      },
+      "errors": {},
+      "codes": {
+        "200": 18,
+        "201": 3,
+        "404": 5
+      },
+      "matches": 0,
+      "latencies": [
+        221589691,
+        47713321,
+        226377788,
+        151173108,
+        133036420,
+        119891797,
+        228966291,
+        45192509,
+        221492891,
+        150998111,
+        213473186,
+        46413519,
+        220425379,
+        154117314,
+        128665383,
+        119957723,
+        212762819,
+        49484058,
+        221327495,
+        44460559,
+        229038347,
+        165817801,
+        137974019,
+        121592410,
+        221420698,
+        148131976
+      ],
+      "customStats": {},
+      "counters": {},
+      "concurrency": 0,
+      "pendingRequests": 0,
+      "scenariosAvoided": 0
+    },
+    {
+      "timestamp": "2020-11-16T21:41:17.211Z",
+      "scenariosCreated": 1,
+      "scenariosCompleted": 1,
+      "requestsCompleted": 2,
+      "latency": {
+        "min": 161.3,
+        "max": 223.7,
+        "median": 192.5,
+        "p95": 223.7,
+        "p99": 223.7
+      },
+      "rps": {
+        "count": 2,
+        "mean": 3.92
+      },
+      "scenarioDuration": {
+        "min": 392.5,
+        "max": 392.5,
+        "median": 392.5,
+        "p95": 392.5,
+        "p99": 392.5
+      },
+      "scenarioCounts": {
+        "POST, incomplete data NO ID": 1
+      },
+      "errors": {},
+      "codes": {
+        "200": 1,
+        "400": 1
+      },
+      "matches": 0,
+      "latencies": [
+        223712829,
+        161346834
+      ],
+      "customStats": {},
+      "counters": {},
+      "concurrency": 0,
+      "pendingRequests": 0,
+      "scenariosAvoided": 0
+    }
+  ]
+}
