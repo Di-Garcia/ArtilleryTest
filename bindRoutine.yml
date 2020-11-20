@@ -1,0 +1,484 @@
+config:
+  target: "http:/"
+  plugins:
+    expect: {}
+  phases:
+    - duration: 30
+      arrivalRate: 1
+      maxVusers: 1
+  defaults:
+    headers:
+      authorization: "a"
+  processor: "./functions.js"
+
+scenarios:
+  - name: "GET all Relation"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+      - log: "GET all Relation"
+      - get:
+          url: "/system-management:8080/sm/api/v1/device-management/bind/routines"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          expect:
+            - statusCode: 200
+            - contentType: json
+
+  - name: "POST create relation between Device and Routine schedule Daily"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+      - function: "generateRandomId"
+      - log: "POST create Device with ID: {{ id }}"
+      - post:
+          url: "/system-management:8080/sm/api/v1/device-management/devices"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            id: "{{ id }}"
+          capture:
+            - json: "$.id"
+              as: "deviceIdPost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+            - hasProperty: id
+      - function: "getRoutineBody"
+      - log: "POST create Routine (rand desc{{ randNum }})"
+      - post:
+          url: "/system-management:8080/sm/api/v1/routine-management/routines"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json: "{{ routineBody }}"
+          capture:
+            - json: "$.id"
+              as: "routineIdPost"
+            - json: "$.description"
+              as: "descriptionPost"
+            - json: "$.active"
+              as: "activePost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+      - function: "getRotineDailyScheduleBody"
+      - log: "POST create relation Routine ID: {{ routineIdPost }} with Device ID: {{ deviceIdPost }}. Daily schedule"
+      - post:
+          url: "/system-management:8080/sm/api/v1/device-management/bind/routine"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json: "{{ bindRoutineBody }}"
+          capture:
+            - json: "$.id"
+              as: "bindRoutineIdPost"
+            - json: "$.description"
+              as: "descriptionPost"
+            - json: "$.active"
+              as: "activePost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+      - log: "Get ONE binded Routine with ID: {{ bindRoutineIdPost }}"
+      - get:
+          url: "/system-management:8080/sm/api/v1/device-management/bind/routines/{{ bindRoutineIdPost }}"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          capture:
+            - json: "$[0].id"
+              as: "idGetOne"
+            - json: "$[0].device_id"
+              as: "deviceIdGetOne"
+            - json: "$[0].routine_id"
+              as: "idRoutineGet"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - equals:
+                - "{{ bindRoutineIdPost }}"
+                - "{{ idGetOne }}"
+            - equals:
+                - "{{ deviceIdPost }}"
+                - "{{ deviceIdGetOne }}"
+            - equals:
+                - "{{ routineIdPost }}"
+                - "{{ idRoutineGet }}"
+
+  - name: "POST create relation between Device and Routine schedule Weekly"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+      - function: "generateRandomId"
+      - log: "POST create Device with ID: {{ id }}"
+      - post:
+          url: "/system-management:8080/sm/api/v1/device-management/devices"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            id: "{{ id }}"
+          capture:
+            - json: "$.id"
+              as: "deviceIdPost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+            - hasProperty: id
+      - function: "getRoutineBody"
+      - log: "POST create Routine (rand desc{{ randNum }})"
+      - post:
+          url: "/system-management:8080/sm/api/v1/routine-management/routines"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json: "{{ routineBody }}"
+          capture:
+            - json: "$.id"
+              as: "routineIdPost"
+            - json: "$.description"
+              as: "descriptionPost"
+            - json: "$.active"
+              as: "activePost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+      - function: "getRotineWeeklyScheduleBody"
+      - log: "POST create relation Routine ID: {{ routineIdPost }} with Device ID: {{ deviceIdPost }}. Weekly schedule"
+      - post:
+          url: "/system-management:8080/sm/api/v1/device-management/bind/routine"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json: "{{ bindRoutineBody }}"
+          capture:
+            - json: "$.id"
+              as: "bindRoutineIdPost"
+            - json: "$.description"
+              as: "descriptionPost"
+            - json: "$.active"
+              as: "activePost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+      - log: "Get ONE binded Routine with ID: {{ bindRoutineIdPost }}"
+      - get:
+          url: "/system-management:8080/sm/api/v1/device-management/bind/routines/{{ bindRoutineIdPost }}"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          capture:
+            - json: "$[0].id"
+              as: "idGetOne"
+            - json: "$[0].device_id"
+              as: "deviceIdGetOne"
+            - json: "$[0].routine_id"
+              as: "idRoutineGet"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - equals:
+                - "{{ bindRoutineIdPost }}"
+                - "{{ idGetOne }}"
+            - equals:
+                - "{{ deviceIdPost }}"
+                - "{{ deviceIdGetOne }}"
+            - equals:
+                - "{{ routineIdPost }}"
+                - "{{ idRoutineGet }}"
+
+  - name: "DELETE relation between Device and Routine (schedule)"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+      - function: "generateRandomId"
+      - log: "POST create Device with ID: {{ id }}"
+      - post:
+          url: "/system-management:8080/sm/api/v1/device-management/devices"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            id: "{{ id }}"
+          capture:
+            - json: "$.id"
+              as: "deviceIdPost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+            - hasProperty: id
+      - function: "getRoutineBody"
+      - log: "POST create Routine (rand desc{{ randNum }})"
+      - post:
+          url: "/system-management:8080/sm/api/v1/routine-management/routines"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json: "{{ routineBody }}"
+          capture:
+            - json: "$.id"
+              as: "routineIdPost"
+            - json: "$.description"
+              as: "descriptionPost"
+            - json: "$.active"
+              as: "activePost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+      - function: "getRotineDailyScheduleBody"
+      - log: "POST create relation Routine ID: {{ routineIdPost }} with Device ID: {{ deviceIdPost }}. Daily schedule"
+      - post:
+          url: "/system-management:8080/sm/api/v1/device-management/bind/routine"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json: "{{ bindRoutineBody }}"
+          capture:
+            - json: "$.id"
+              as: "bindRoutineIdPost"
+            - json: "$.description"
+              as: "descriptionPost"
+            - json: "$.active"
+              as: "activePost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+      - log: "DELETE bind routine with ID: {{ bindRoutineIdPost }}"
+      - delete:
+          url: "/system-management:8080/sm/api/v1/device-management/bind/routines/{{ bindRoutineIdPost }}"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          expect:
+            - statusCode: 204
+
+  - name: "PUT update relation between Device and Routine schedule"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+      - function: "generateRandomId"
+      - log: "POST create Device with ID: {{ id }}"
+      - post:
+          url: "/system-management:8080/sm/api/v1/device-management/devices"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            id: "{{ id }}"
+          capture:
+            - json: "$.id"
+              as: "deviceIdPost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+            - hasProperty: id
+      - function: "getRoutineBody"
+      - log: "POST create Routine (rand desc{{ randNum }})"
+      - post:
+          url: "/system-management:8080/sm/api/v1/routine-management/routines"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json: "{{ routineBody }}"
+          capture:
+            - json: "$.id"
+              as: "routineIdPost"
+            - json: "$.description"
+              as: "descriptionPost"
+            - json: "$.active"
+              as: "activePost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+      - function: "getRotineDailyScheduleBody"
+      - log: "POST create relation Routine ID: {{ routineIdPost }} with Device ID: {{ deviceIdPost }}. Daily schedule"
+      - post:
+          url: "/system-management:8080/sm/api/v1/device-management/bind/routine"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json: "{{ bindRoutineBody }}"
+          capture:
+            - json: "$.id"
+              as: "bindRoutineIdPost"
+            - json: "$.description"
+              as: "descriptionPost"
+            - json: "$.active"
+              as: "activePost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+
+      - function: "getUpdatedRotineDailyScheduleBody"
+      - log: "PUT update Routine schedule with ID: {{ bindRoutineIdPost }}"
+      - put:
+          url: "/system-management:8080/sm/api/v1/device-management/bind/routines/{{ bindRoutineIdPost }}"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json: "{{ bindRoutineBody }}"
+          expect:
+            - statusCode: 200
+            - contentType: json
+      - log: "Get ONE binded Routine with ID: {{ bindRoutineIdPost }}"
+      - get:
+          url: "/system-management:8080/sm/api/v1/device-management/bind/routines/{{ bindRoutineIdPost }}"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          capture:
+            - json: "$[0].id"
+              as: "idGetOne"
+            - json: "$[0].device_id"
+              as: "deviceIdGetOne"
+            - json: "$[0].routine_id"
+              as: "idRoutineGet"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - equals:
+                - "{{ bindRoutineIdPost }}"
+                - "{{ idGetOne }}"
+            - equals:
+                - "{{ deviceIdPost }}"
+                - "{{ deviceIdGetOne }}"
+            - equals:
+                - "{{ routineIdPost }}"
+                - "{{ idRoutineGet }}"
+
+  - name: "GET with wrong value"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - log: "GET all Relation"
+      - get:
+          url: "/system-management:8080/sm/api/v1/device-management/bind/routines/99999999999999"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          expect:
+            - statusCode: 200
+            - contentType: json
+
+  - name: "POST with missing values"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - function: "getRotineScheduleIncompleteBody"
+      - log: "POST with missing values"
+      - post:
+          url: "/system-management:8080/sm/api/v1/device-management/bind/routine"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json: "{{ bindRoutineBody }}"
+          capture:
+            - json: "$.id"
+              as: "idPost"
+          expect:
+            - statusCode: 400
+            - contentType: json
+
+  - name: "DELETE with missing values"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - log: "DELETE bind routine 999999999999999"
+      - delete:
+          url: "/system-management:8080/sm/api/v1/device-management/bind/routines/999999999999999"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          expect:
+            - statusCode: 404
+
+

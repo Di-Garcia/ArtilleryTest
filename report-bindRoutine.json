@@ -1,0 +1,328 @@
+{
+  "aggregate": {
+    "timestamp": "2020-11-16T21:28:45.141Z",
+    "scenariosCreated": 27,
+    "scenariosCompleted": 27,
+    "requestsCompleted": 94,
+    "latency": {
+      "min": 117.8,
+      "max": 449.9,
+      "median": 158,
+      "p95": 261.4,
+      "p99": 394.3
+    },
+    "rps": {
+      "count": 94,
+      "mean": 3.14
+    },
+    "scenarioDuration": {
+      "min": 370.3,
+      "max": 1431.3,
+      "median": 401,
+      "p95": 1093.7,
+      "p99": 1431.3
+    },
+    "scenarioCounts": {
+      "POST create relation between Device and Routine schedule Weekly": 2,
+      "GET all Relation": 8,
+      "DELETE relation between Device and Routine (schedule)": 6,
+      "DELETE with missing values": 1,
+      "POST create relation between Device and Routine schedule Daily": 4,
+      "GET with wrong value": 2,
+      "PUT update relation between Device and Routine schedule": 1,
+      "POST with missing values": 3
+    },
+    "errors": {},
+    "codes": {
+      "200": 45,
+      "201": 39,
+      "204": 6,
+      "400": 3,
+      "404": 1
+    },
+    "matches": 0,
+    "customStats": {},
+    "counters": {},
+    "scenariosAvoided": 3,
+    "phases": [
+      {
+        "duration": 30,
+        "arrivalRate": 1,
+        "maxVusers": 1
+      }
+    ]
+  },
+  "intermediate": [
+    {
+      "timestamp": "2020-11-16T21:28:24.125Z",
+      "scenariosCreated": 9,
+      "scenariosCompleted": 9,
+      "requestsCompleted": 30,
+      "latency": {
+        "min": 117.8,
+        "max": 268.3,
+        "median": 158.1,
+        "p95": 230,
+        "p99": 268.3
+      },
+      "rps": {
+        "count": 30,
+        "mean": 3.35
+      },
+      "scenarioDuration": {
+        "min": 373,
+        "max": 933.6,
+        "median": 393.4,
+        "p95": 933.6,
+        "p99": 933.6
+      },
+      "scenarioCounts": {
+        "POST create relation between Device and Routine schedule Weekly": 2,
+        "GET all Relation": 4,
+        "DELETE relation between Device and Routine (schedule)": 1,
+        "DELETE with missing values": 1,
+        "POST create relation between Device and Routine schedule Daily": 1
+      },
+      "errors": {},
+      "codes": {
+        "200": 16,
+        "201": 12,
+        "204": 1,
+        "404": 1
+      },
+      "matches": 0,
+      "latencies": [
+        268282879,
+        168807888,
+        136809171,
+        157795269,
+        126878825,
+        211768991,
+        152308279,
+        224807599,
+        153980987,
+        132583843,
+        135123890,
+        119797408,
+        216481823,
+        161858834,
+        222796957,
+        158341507,
+        221418143,
+        156891896,
+        151978678,
+        166061406,
+        143817298,
+        226780555,
+        153604623,
+        230005644,
+        164212470,
+        149388191,
+        140275005,
+        117800193,
+        217126238,
+        162516762
+      ],
+      "customStats": {},
+      "counters": {},
+      "concurrency": 0,
+      "pendingRequests": 0,
+      "scenariosAvoided": 0
+    },
+    {
+      "timestamp": "2020-11-16T21:28:34.122Z",
+      "scenariosCreated": 8,
+      "scenariosCompleted": 8,
+      "requestsCompleted": 32,
+      "latency": {
+        "min": 121.3,
+        "max": 449.9,
+        "median": 152.7,
+        "p95": 322,
+        "p99": 449.9
+      },
+      "rps": {
+        "count": 32,
+        "mean": 3.2
+      },
+      "scenarioDuration": {
+        "min": 370.3,
+        "max": 1431.3,
+        "median": 789.5,
+        "p95": 1431.3,
+        "p99": 1431.3
+      },
+      "scenarioCounts": {
+        "DELETE relation between Device and Routine (schedule)": 2,
+        "GET with wrong value": 2,
+        "GET all Relation": 1,
+        "PUT update relation between Device and Routine schedule": 1,
+        "POST create relation between Device and Routine schedule Daily": 2
+      },
+      "errors": {},
+      "codes": {
+        "200": 15,
+        "201": 15,
+        "204": 2
+      },
+      "matches": 0,
+      "latencies": [
+        226674025,
+        155809348,
+        138019588,
+        135022242,
+        136009157,
+        233953591,
+        147506278,
+        223125942,
+        159599496,
+        227992895,
+        149593828,
+        170628365,
+        165504548,
+        167955011,
+        123989526,
+        222005940,
+        144940614,
+        138290175,
+        133650893,
+        129525050,
+        221210329,
+        141120273,
+        449902302,
+        323590915,
+        307506229,
+        197199240,
+        134419197,
+        222880921,
+        147750982,
+        132870258,
+        142630807,
+        121306145
+      ],
+      "customStats": {},
+      "counters": {},
+      "concurrency": 0,
+      "pendingRequests": 0,
+      "scenariosAvoided": 2
+    },
+    {
+      "timestamp": "2020-11-16T21:28:44.121Z",
+      "scenariosCreated": 9,
+      "scenariosCompleted": 9,
+      "requestsCompleted": 27,
+      "latency": {
+        "min": 119.5,
+        "max": 268.4,
+        "median": 164.1,
+        "p95": 239,
+        "p99": 268.4
+      },
+      "rps": {
+        "count": 27,
+        "mean": 2.7
+      },
+      "scenarioDuration": {
+        "min": 374.1,
+        "max": 1010.4,
+        "median": 398.7,
+        "p95": 1010.4,
+        "p99": 1010.4
+      },
+      "scenarioCounts": {
+        "DELETE relation between Device and Routine (schedule)": 2,
+        "GET all Relation": 3,
+        "POST with missing values": 3,
+        "POST create relation between Device and Routine schedule Daily": 1
+      },
+      "errors": {},
+      "codes": {
+        "200": 13,
+        "201": 9,
+        "204": 2,
+        "400": 3
+      },
+      "matches": 0,
+      "latencies": [
+        222351422,
+        163956993,
+        133859821,
+        142284404,
+        140676578,
+        219870827,
+        150865491,
+        219977575,
+        164108956,
+        226623697,
+        139654054,
+        233769904,
+        268398030,
+        198830662,
+        167919080,
+        119538886,
+        215061915,
+        153039582,
+        224405316,
+        148320697,
+        215809049,
+        173240846,
+        138540759,
+        142473998,
+        136171111,
+        233064361,
+        158115273
+      ],
+      "customStats": {},
+      "counters": {},
+      "concurrency": 0,
+      "pendingRequests": 0,
+      "scenariosAvoided": 1
+    },
+    {
+      "timestamp": "2020-11-16T21:28:45.138Z",
+      "scenariosCreated": 1,
+      "scenariosCompleted": 1,
+      "requestsCompleted": 5,
+      "latency": {
+        "min": 133.3,
+        "max": 216.1,
+        "median": 144,
+        "p95": 216.1,
+        "p99": 216.1
+      },
+      "rps": {
+        "count": 5,
+        "mean": 5
+      },
+      "scenarioDuration": {
+        "min": 804.7,
+        "max": 804.7,
+        "median": 804.7,
+        "p95": 804.7,
+        "p99": 804.7
+      },
+      "scenarioCounts": {
+        "DELETE relation between Device and Routine (schedule)": 1
+      },
+      "errors": {},
+      "codes": {
+        "200": 1,
+        "201": 3,
+        "204": 1
+      },
+      "matches": 0,
+      "latencies": [
+        216082711,
+        156428287,
+        135078482,
+        143994253,
+        133272962
+      ],
+      "customStats": {},
+      "counters": {},
+      "concurrency": 0,
+      "pendingRequests": 0,
+      "scenariosAvoided": 0
+    }
+  ]
+}

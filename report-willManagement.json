@@ -1,0 +1,134 @@
+{
+  "aggregate": {
+    "timestamp": "2020-11-13T23:09:37.374Z",
+    "scenariosCreated": 2,
+    "scenariosCompleted": 0,
+    "requestsCompleted": 4,
+    "latency": {
+      "min": 65.9,
+      "max": 271.6,
+      "median": 164.8,
+      "p95": 271.6,
+      "p99": 271.6
+    },
+    "rps": {
+      "count": 4,
+      "mean": 0.35
+    },
+    "scenarioDuration": {
+      "min": null,
+      "max": null,
+      "median": null,
+      "p95": null,
+      "p99": null
+    },
+    "scenarioCounts": {
+      "GET device will": 2
+    },
+    "errors": {
+      "an URL must be specified": 2
+    },
+    "codes": {
+      "200": 2,
+      "201": 2
+    },
+    "matches": 0,
+    "customStats": {},
+    "counters": {},
+    "scenariosAvoided": 8,
+    "phases": [
+      {
+        "duration": 10,
+        "arrivalRate": 1,
+        "maxVusers": 1
+      }
+    ]
+  },
+  "intermediate": [
+    {
+      "timestamp": "2020-11-13T23:09:34.843Z",
+      "scenariosCreated": 2,
+      "scenariosCompleted": 0,
+      "requestsCompleted": 3,
+      "latency": {
+        "min": 109.9,
+        "max": 271.6,
+        "median": 219.6,
+        "p95": 271.6,
+        "p99": 271.6
+      },
+      "rps": {
+        "count": 3,
+        "mean": 0.34
+      },
+      "scenarioDuration": {
+        "min": null,
+        "max": null,
+        "median": null,
+        "p95": null,
+        "p99": null
+      },
+      "scenarioCounts": {
+        "GET device will": 2
+      },
+      "errors": {
+        "an URL must be specified": 1
+      },
+      "codes": {
+        "200": 2,
+        "201": 1
+      },
+      "matches": 0,
+      "latencies": [
+        271617364,
+        109922344,
+        219591223
+      ],
+      "customStats": {},
+      "counters": {},
+      "concurrency": 1,
+      "pendingRequests": 0,
+      "scenariosAvoided": 7
+    },
+    {
+      "timestamp": "2020-11-13T23:09:37.372Z",
+      "scenariosCreated": 0,
+      "scenariosCompleted": 0,
+      "requestsCompleted": 1,
+      "latency": {
+        "min": 65.9,
+        "max": 65.9,
+        "median": 65.9,
+        "p95": 65.9,
+        "p99": 65.9
+      },
+      "rps": {
+        "count": 1,
+        "mean": 3.45
+      },
+      "scenarioDuration": {
+        "min": null,
+        "max": null,
+        "median": null,
+        "p95": null,
+        "p99": null
+      },
+      "scenarioCounts": {},
+      "errors": {
+        "an URL must be specified": 1
+      },
+      "codes": {
+        "201": 1
+      },
+      "matches": 0,
+      "latencies": [
+        65924290
+      ],
+      "customStats": {},
+      "counters": {},
+      "concurrency": 0,
+      "pendingRequests": 0,
+      "scenariosAvoided": 1
+    }
+  ]
+}

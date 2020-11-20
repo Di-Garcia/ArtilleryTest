@@ -1,0 +1,335 @@
+{
+  "aggregate": {
+    "timestamp": "2020-11-16T22:15:33.256Z",
+    "scenariosCreated": 30,
+    "scenariosCompleted": 30,
+    "requestsCompleted": 98,
+    "latency": {
+      "min": 39.5,
+      "max": 344.4,
+      "median": 145.5,
+      "p95": 224.3,
+      "p99": 301.8
+    },
+    "rps": {
+      "count": 98,
+      "mean": 3.27
+    },
+    "scenarioDuration": {
+      "min": 269,
+      "max": 871,
+      "median": 421.2,
+      "p95": 828.7,
+      "p99": 871
+    },
+    "scenarioCounts": {
+      "Get All Groups Rules": 4,
+      "GET with wrong values": 7,
+      "Post a group Rule": 5,
+      "POST with missing values": 4,
+      "DELETE with missing values": 5,
+      "Delete a group Rule": 5
+    },
+    "errors": {},
+    "codes": {
+      "200": 46,
+      "201": 38,
+      "204": 5,
+      "400": 4,
+      "404": 5
+    },
+    "matches": 0,
+    "customStats": {},
+    "counters": {},
+    "scenariosAvoided": 0,
+    "phases": [
+      {
+        "duration": 30,
+        "arrivalRate": 1,
+        "maxVusers": 1
+      }
+    ]
+  },
+  "intermediate": [
+    {
+      "timestamp": "2020-11-16T22:15:12.247Z",
+      "scenariosCreated": 9,
+      "scenariosCompleted": 9,
+      "requestsCompleted": 28,
+      "latency": {
+        "min": 45.8,
+        "max": 344.4,
+        "median": 150.9,
+        "p95": 246.3,
+        "p99": 344.4
+      },
+      "rps": {
+        "count": 28,
+        "mean": 3.13
+      },
+      "scenarioDuration": {
+        "min": 367,
+        "max": 871,
+        "median": 436.4,
+        "p95": 871,
+        "p99": 871
+      },
+      "scenarioCounts": {
+        "Get All Groups Rules": 3,
+        "GET with wrong values": 1,
+        "Post a group Rule": 1,
+        "POST with missing values": 2,
+        "DELETE with missing values": 1,
+        "Delete a group Rule": 1
+      },
+      "errors": {},
+      "codes": {
+        "200": 14,
+        "201": 10,
+        "204": 1,
+        "400": 2,
+        "404": 1
+      },
+      "matches": 0,
+      "latencies": [
+        235429990,
+        144124200,
+        219487375,
+        144380560,
+        218687606,
+        138894487,
+        218607115,
+        158797308,
+        159111297,
+        176403078,
+        136280109,
+        221916379,
+        165205020,
+        128490246,
+        122148584,
+        344380525,
+        53136487,
+        218778451,
+        148445282,
+        136771185,
+        129582299,
+        213358519,
+        153268732,
+        131225588,
+        135030863,
+        45847568,
+        216380302,
+        142367836
+      ],
+      "customStats": {},
+      "counters": {},
+      "concurrency": 0,
+      "pendingRequests": 0,
+      "scenariosAvoided": 0
+    },
+    {
+      "timestamp": "2020-11-16T22:15:22.244Z",
+      "scenariosCreated": 10,
+      "scenariosCompleted": 10,
+      "requestsCompleted": 37,
+      "latency": {
+        "min": 39.5,
+        "max": 255.6,
+        "median": 136.5,
+        "p95": 220.9,
+        "p99": 255.6
+      },
+      "rps": {
+        "count": 37,
+        "mean": 3.7
+      },
+      "scenarioDuration": {
+        "min": 269,
+        "max": 828.7,
+        "median": 659.1,
+        "p95": 828.7,
+        "p99": 828.7
+      },
+      "scenarioCounts": {
+        "Delete a group Rule": 2,
+        "DELETE with missing values": 3,
+        "Post a group Rule": 3,
+        "GET with wrong values": 1,
+        "POST with missing values": 1
+      },
+      "errors": {},
+      "codes": {
+        "200": 14,
+        "201": 17,
+        "204": 2,
+        "400": 1,
+        "404": 3
+      },
+      "matches": 0,
+      "latencies": [
+        211501193,
+        150675244,
+        133343753,
+        140189878,
+        45707484,
+        213754740,
+        48694988,
+        214063860,
+        148581088,
+        133154546,
+        136538461,
+        119636179,
+        216740773,
+        52136753,
+        211239331,
+        137339680,
+        216347352,
+        143743181,
+        131828933,
+        128396801,
+        39506161,
+        255627505,
+        154610896,
+        135884596,
+        131834919,
+        122346702,
+        221171489,
+        50693742,
+        220360197,
+        149250864,
+        132327460,
+        119675144,
+        216227889,
+        151399067,
+        130749388,
+        135794421,
+        120073145
+      ],
+      "customStats": {},
+      "counters": {},
+      "concurrency": 0,
+      "pendingRequests": 0,
+      "scenariosAvoided": 0
+    },
+    {
+      "timestamp": "2020-11-16T22:15:32.243Z",
+      "scenariosCreated": 10,
+      "scenariosCompleted": 10,
+      "requestsCompleted": 29,
+      "latency": {
+        "min": 41.5,
+        "max": 242.8,
+        "median": 152.4,
+        "p95": 225.6,
+        "p99": 242.8
+      },
+      "rps": {
+        "count": 29,
+        "mean": 2.9
+      },
+      "scenarioDuration": {
+        "min": 282,
+        "max": 809.5,
+        "median": 375.6,
+        "p95": 809.5,
+        "p99": 809.5
+      },
+      "scenarioCounts": {
+        "Delete a group Rule": 2,
+        "GET with wrong values": 5,
+        "Get All Groups Rules": 1,
+        "DELETE with missing values": 1,
+        "Post a group Rule": 1
+      },
+      "errors": {},
+      "codes": {
+        "200": 17,
+        "201": 9,
+        "204": 2,
+        "404": 1
+      },
+      "matches": 0,
+      "latencies": [
+        219346510,
+        152387474,
+        133007882,
+        130208611,
+        42328516,
+        217715053,
+        139078154,
+        224671289,
+        153288349,
+        137883185,
+        134275426,
+        41539781,
+        215147448,
+        156526616,
+        242837404,
+        138630210,
+        222509139,
+        144655213,
+        221797415,
+        49114885,
+        212510683,
+        138576489,
+        223651118,
+        139279098,
+        217183165,
+        153879935,
+        146363243,
+        157267492,
+        118237053
+      ],
+      "customStats": {},
+      "counters": {},
+      "concurrency": 0,
+      "pendingRequests": 0,
+      "scenariosAvoided": 0
+    },
+    {
+      "timestamp": "2020-11-16T22:15:33.252Z",
+      "scenariosCreated": 1,
+      "scenariosCompleted": 1,
+      "requestsCompleted": 4,
+      "latency": {
+        "min": 131.1,
+        "max": 219.2,
+        "median": 159.9,
+        "p95": 219.2,
+        "p99": 219.2
+      },
+      "rps": {
+        "count": 4,
+        "mean": 4
+      },
+      "scenarioDuration": {
+        "min": 684.3,
+        "max": 684.3,
+        "median": 684.3,
+        "p95": 684.3,
+        "p99": 684.3
+      },
+      "scenarioCounts": {
+        "POST with missing values": 1
+      },
+      "errors": {},
+      "codes": {
+        "200": 1,
+        "201": 2,
+        "400": 1
+      },
+      "matches": 0,
+      "latencies": [
+        219230997,
+        170593051,
+        149270225,
+        131123738
+      ],
+      "customStats": {},
+      "counters": {},
+      "concurrency": 0,
+      "pendingRequests": 0,
+      "scenariosAvoided": 0
+    }
+  ]
+}

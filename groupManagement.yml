@@ -1,0 +1,237 @@
+config:
+  target: 'http:/'
+  plugins:
+    expect: {}
+  phases:
+    - duration: 30
+      arrivalRate: 1
+      maxVusers: 1
+  defaults:
+    headers:
+      authorization: 'a'
+  processor: './functions.js'
+  payload:
+    path: './mockData/groupManagement.csv'
+    fields:
+      - 'description'
+      - 'active'
+      - 'newdescription'
+    order: sequence
+    delimiter: ','
+    skipHeader: true
+
+scenarios:
+  - name: 'GET all groups'
+    flow:
+      - log: 'POST Login'
+      - post:
+          url: '/pm-user-management:3000/api/v1/auth/login'
+          headers:
+            authorization: 'Bearer {{ auth_token }}'
+          json:
+            username: 'adriana'
+            password: '123456'
+          capture:
+            - json: '$.token.access_token'
+              as: 'auth_token'
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - log: 'GET all groups'
+      - get:
+          url: '/system-management:8080/sm/api/v1/group-management/groups'
+          headers:
+            authorization: 'Bearer {{ auth_token }}'
+          expect:
+            - statusCode: 200
+            - contentType: json
+
+  - name: 'POST and GET group'
+    flow:
+      - log: 'POST Login'
+      - post:
+          url: '/pm-user-management:3000/api/v1/auth/login'
+          headers:
+            authorization: 'Bearer {{ auth_token }}'
+          json:
+            username: 'adriana'
+            password: '123456'
+          capture:
+            - json: '$.token.access_token'
+              as: 'auth_token'
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - function: 'generateRandomGroupId'
+      - log: 'POST {{ id }}'
+      - post:
+          url: '/system-management:8080/sm/api/v1/group-management/groups'
+          headers:
+            authorization: 'Bearer {{ auth_token }}'
+          json:
+            id: '{{ id }}'
+            description: '{{ description }}'
+            active: '{{ active }}'
+          capture:
+            - json: '$.id'
+              as: 'idPost'
+          expect:
+            - statusCode: 201
+            - contentType: json
+
+      - log: 'Get id {{idPost}}'
+      - get:
+          url: '/system-management:8080/sm/api/v1/group-management/groups/info/{{ idPost }}'
+          headers:
+            authorization: 'Bearer {{ auth_token }}'
+          capture:
+            - json: '$.id'
+              as: 'idGet'
+            - json: '$.description'
+              as: 'descriptionGet'
+            - json: '$.active'
+              as: 'activeGet'
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - equals:
+                - '{{ idPost }}'
+                - '{{ idGet }}'
+            - equals:
+                - '{{ description }}'
+                - '{{ descriptionGet }}'
+            - equals:
+                - '{{ active }}'
+                - '{{ activeGet }}'
+
+  - name: 'POST, PUT and GET group'
+    flow:
+      - log: 'POST Login'
+      - post:
+          url: '/pm-user-management:3000/api/v1/auth/login'
+          headers:
+            authorization: 'Bearer {{ auth_token }}'
+          json:
+            username: 'adriana'
+            password: '123456'
+          capture:
+            - json: '$.token.access_token'
+              as: 'auth_token'
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - function: 'generateRandomGroupId'
+      - log: 'POST {{ id }}'
+      - post:
+          url: '/system-management:8080/sm/api/v1/group-management/groups'
+          headers:
+            authorization: 'Bearer {{ auth_token }}'
+          json:
+            id: '{{ id }}'
+            description: '{{ description }}'
+            active: '{{ active }}'
+          capture:
+            - json: '$.id'
+              as: 'idPost'
+          expect:
+            - statusCode: 201
+            - contentType: json
+
+      - log: 'PUT id {{idPost}}'
+      - put:
+          url: '/system-management:8080/sm/api/v1/group-management/groups/{{ idPost }}'
+          headers:
+            authorization: 'Bearer {{ auth_token }}'
+          json:
+            description: '{{ newdescription }}'
+            active: '{{ active }}'
+          expect:
+            - statusCode: 200
+            - contentType: json
+
+      - log: 'GET device {{idPost}}'
+      - get:
+          url: '/system-management:8080/sm/api/v1/group-management/groups/info/{{ idPost }}'
+          headers:
+            authorization: 'Bearer {{ auth_token }}'
+          capture:
+            - json: '$.id'
+              as: 'idGet'
+            - json: '$.description'
+              as: 'descriptionGet'
+            - json: '$.active'
+              as: 'activeGet'
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - equals:
+                - '{{ idPost }}'
+                - '{{ idGet }}'
+            - equals:
+                - '{{ newdescription }}'
+                - '{{ descriptionGet }}'
+            - equals:
+                - '{{ active }}'
+                - '{{ activeGet }}'
+
+  - name: 'GET device inexistent id'
+    flow:
+      - log: 'POST Login'
+      - post:
+          url: '/pm-user-management:3000/api/v1/auth/login'
+          headers:
+            authorization: 'Bearer {{ auth_token }}'
+          json:
+            username: 'adriana'
+            password: '123456'
+          capture:
+            - json: '$.token.access_token'
+              as: 'auth_token'
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - log: 'GET createDevice inexistent id'
+      - get:
+          url: '/system-management:8080/sm/api/v1/group-management/groups/100000'
+          headers:
+            authorization: 'Bearer {{ auth_token }}'
+          expect:
+            - statusCode: 404
+
+  - name: 'POST, incomplete data NO ID'
+    flow:
+      - log: 'POST Login'
+      - post:
+          url: '/pm-user-management:3000/api/v1/auth/login'
+          headers:
+            authorization: 'Bearer {{ auth_token }}'
+          json:
+            username: 'adriana'
+            password: '123456'
+          capture:
+            - json: '$.token.access_token'
+              as: 'auth_token'
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - log: 'POST, incomplete data NO ID'
+      - post:
+          url: '/system-management:8080/sm/api/v1/group-management/groups'
+          headers:
+            authorization: 'Bearer {{ auth_token }}'
+          json:
+            description: '{{ description }}'
+            active: '{{ active }}'
+          expect:
+            - statusCode: 400
+            - contentType: json

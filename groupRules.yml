@@ -1,0 +1,354 @@
+config:
+  target: "http:/"
+  plugins:
+    expect: {}
+  phases:
+    - duration: 30
+      arrivalRate: 1
+      maxVusers: 1
+  defaults:
+    headers:
+      authorization: "a"
+  processor: "./functions.js"
+  payload:
+    path: "./mockData/paramManagement.csv"
+    fields:
+      - key
+      - full_description
+      - short_description
+      - unit
+      - unit_abbreviation
+      - type
+      - active
+    order: sequence
+    delimiter: ","
+    skipHeader: true
+
+scenarios:
+  - name: "Get All Groups Rules"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+      - log: "GET All groups rules"
+      - get:
+          url: "/system-management:8080/sm/api/v1/group-management/bind/rules"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          expect:
+            - statusCode: 200
+            - contentType: json
+
+  - name: "Post a group Rule"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - function: "generateRandomGroupId"
+      - log: "POST create Group with ID: {{ id }}"
+      - post:
+          url: "/system-management:8080/sm/api/v1/group-management/groups"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            id: "{{ id }}"
+            description: "group desc"
+          capture:
+            - json: "$.id"
+              as: "groupIdPost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+            - hasProperty: id
+
+      - log: "POST create param: artillery_test_{{id}}_{{key}}"
+      - function: "generateRandomId"
+      - post:
+          url: "/system-management:8080/sm/api/v1/param-management/params"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            key: "artillery_test_{{ id }}_{{ key }}"
+            full_description: "{{ full_description }}"
+            short_description: "{{ short_description }}"
+            unit: "{{ unit }}"
+            unit_abbreviation: "{{ unit_abbreviation }}"
+            type: "{{ type }}"
+          capture:
+            - json: "$.key"
+              as: "keyPost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+            - hasProperty: key
+            - hasProperty: full_description
+            - hasProperty: short_description
+            - hasProperty: unit
+            - hasProperty: unit_abbreviation
+            - hasProperty: type
+      - log: "POST create Rule: param = {{ keyPost }}, groupId = {{ groupIdPost }}"
+      - post:
+          url: "/system-management:8080/sm/api/v1/group-management/bind/rules"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            group_id: "{{ groupIdPost }}"
+            param_key_id: "{{ keyPost }}"
+            read_frequency: 30
+          capture:
+            - json: "$.read_frequency"
+              as: "read_frequencyPost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+            - hasProperty: param_key_id
+            - hasProperty: read_frequency
+            - hasProperty: group_id
+      - log: "GET ONE group rules"
+      - get:
+          url: "/system-management:8080/sm/api/v1/group-management/bind/rules?group_id={{  groupIdPost  }}&param_key_id={{  keyPost  }}"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          capture:
+            - json: "$[0].group_id"
+              as: "groupIdGETONE"
+            - json: "$[0].param_key_id"
+              as: "keyGETONE"
+            - json: "$[0].read_frequency"
+              as: "read_frequencyGETONE"
+          expect:
+            - statusCode: 200
+            - equals:
+                - "{{  groupIdPost }}"
+                - "{{  groupIdGETONE  }}"
+            - equals:
+                - "{{  keyPost }}"
+                - "{{  keyGETONE  }}"
+            - equals:
+                - "{{  read_frequencyPost }}"
+                - "{{  read_frequencyGETONE  }}"
+
+  - name: "Delete a group Rule"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+      - function: "generateRandomGroupId"
+      - log: "POST create Group with ID: {{ id }}"
+      - post:
+          url: "/system-management:8080/sm/api/v1/group-management/groups"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            id: "{{ id }}"
+            description: "group desc"
+          capture:
+            - json: "$.id"
+              as: "groupIdPost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+            - hasProperty: id
+      - log: "POST create param: artillery_test_{{id}}_{{key}}"
+      - function: "generateRandomId"
+      - post:
+          url: "/system-management:8080/sm/api/v1/param-management/params"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            key: "artillery_test_{{ id }}_{{ key }}"
+            full_description: "{{ full_description }}"
+            short_description: "{{ short_description }}"
+            unit: "{{ unit }}"
+            unit_abbreviation: "{{ unit_abbreviation }}"
+            type: "{{ type }}"
+          capture:
+            - json: "$.key"
+              as: "keyPost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+            - hasProperty: key
+            - hasProperty: full_description
+            - hasProperty: short_description
+            - hasProperty: unit
+            - hasProperty: unit_abbreviation
+            - hasProperty: type
+      - log: "POST create Rule: param = {{ keyPost }}, groupId = {{ groupIdPost }}"
+      - post:
+          url: "/system-management:8080/sm/api/v1/group-management/bind/rules"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            group_id: "{{ groupIdPost }}"
+            param_key_id: "{{ keyPost }}"
+            read_frequency: 30
+          capture:
+            - json: "$.read_frequency"
+              as: "read_frequencyPost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+            - hasProperty: param_key_id
+            - hasProperty: read_frequency
+            - hasProperty: group_id
+      - log: "DELETE group rule. Device ID: {{  groupIdPost  }} and Param ID: {{  keyPost }}"
+      - delete:
+          url: "/system-management:8080/sm/api/v1/group-management/{{  groupIdPost  }}/rules/{{  keyPost  }}"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          expect:
+            - statusCode: 204
+
+  - name: "GET with wrong values"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - log: "GET with wrong values"
+      - get:
+          url: "/system-management:8080/sm/api/v1/group-management/bind/rules?group_id=77778888999999&param_key_id=wrongValueSearch999999"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          capture:
+            - json: "$.key"
+              as: "keyParamsGet"
+          expect:
+            - statusCode: 200
+
+  - name: "POST with missing values"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - function: "generateRandomGroupId"
+      - log: "POST create Group with ID: {{ id }}"
+      - post:
+          url: "/system-management:8080/sm/api/v1/group-management/groups"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            id: "{{ id }}"
+            description: "group desc"
+          capture:
+            - json: "$.id"
+              as: "groupIdPost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+            - hasProperty: id
+
+      - log: "POST create param: artillery_test_{{id}}_{{key}}"
+      - function: "generateRandomId"
+      - post:
+          url: "/system-management:8080/sm/api/v1/param-management/params"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            key: "artillery_test_{{ id }}_{{ key }}"
+            full_description: "{{ full_description }}"
+            short_description: "{{ short_description }}"
+            unit: "{{ unit }}"
+            unit_abbreviation: "{{ unit_abbreviation }}"
+            type: "{{ type }}"
+          capture:
+            - json: "$.key"
+              as: "keyPost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+            - hasProperty: key
+            - hasProperty: full_description
+            - hasProperty: short_description
+            - hasProperty: unit
+            - hasProperty: unit_abbreviation
+            - hasProperty: type
+
+      - log: "POST with wrong body"
+      - post:
+          url: "/system-management:8080/sm/api/v1/group-management/bind/rules"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            group_id: "{{ groupIdPost }}"
+            boundaries: { "interval": { "min": 10, "max": 30 } }
+          expect:
+            - statusCode: 400
+            - contentType: json
+
+  - name: "DELETE with missing values"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - log: "DELETE rules"
+      - delete:
+          url: "/system-management:8080/sm/api/v1/group-management/{{idGroupPost}}999/rules/{{keyParamsPost}}999"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          expect:
+            - statusCode: 404

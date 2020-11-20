@@ -1,0 +1,137 @@
+config:
+  target: "http:/"
+  plugins:
+    expect: {}
+  phases:
+    - duration: 10
+      arrivalRate: 1
+      maxVusers: 1
+  defaults:
+    headers:
+      authorization: "a"
+  processor: "./functions.js"
+
+scenarios:
+  - name: "GET all logs"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - log: "POST all"
+      - post:
+          url: "/system-management:8080/sm/api/v1/log-management/logs"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            event_type: "*"
+            id: "*"
+            event_sub_type: "*"
+            property: [{ type: "*", key: "*", value: "*" }]
+            start_timestamp: 0
+            end_timestamp: 0
+            limit: 100
+            sort: "desc"
+          expect:
+            - statusCode: 200
+
+  - name: "GET a specific log"
+    flow:
+      - log: "POST Login"
+      - think: 5
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+      - function: "generateRandomId"
+      - log: "POST create Device with ID: {{ id }}"
+      - think: 5
+      - post:
+          url: "/system-management:8080/sm/api/v1/device-management/devices/"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            id: "{{ id }}"
+          capture:
+            - json: "$.id"
+              as: "deviceIdPost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+            - hasProperty: id
+      - log: "PATCH value sampleNumber to SNN{{ deviceIdPost  }}"
+      - think: 0
+      - patch:
+          url: "/system-management:8080/sm/api/v1/metadata-management/metadata/SNN{{ deviceIdPost  }}"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            value: "SNN{{ deviceIdPost  }}"
+          expect:
+            - statusCode: 200
+
+      - log: "GET"
+      - think: 5
+      - get:
+          url: "/system-management:8080/sm/api/v1/log-management/logs"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            event_type: "*"
+            id: "{{  deviceIdPost  }}"
+            event_sub_type: "*"
+            property: [{ type: "*", key: "*", value: "*" }]
+            start_timestamp: 0
+            end_timestamp: 0
+            limit: 100
+            sort: "desc"
+          expect:
+            - statusCode: 200
+
+  - name: "GET with missing value"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - log: "GET"
+      - get:
+          url: "/system-management:8080/sm/api/v1/log-management/logs"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            property: [{ type: "*", key: "*", value: "*" }]
+            start_timestamp: 0
+            end_timestamp: 0
+            limit: 100
+            sort: "desc"
+          expect:
+            - statusCode: 404

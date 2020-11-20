@@ -1,0 +1,249 @@
+{
+  "aggregate": {
+    "timestamp": "2020-11-16T21:06:45.078Z",
+    "scenariosCreated": 10,
+    "scenariosCompleted": 10,
+    "requestsCompleted": 29,
+    "latency": {
+      "min": 118.1,
+      "max": 385.9,
+      "median": 153.2,
+      "p95": 384.1,
+      "p99": 385.9
+    },
+    "rps": {
+      "count": 29,
+      "mean": 0.92
+    },
+    "scenarioDuration": {
+      "min": 2366,
+      "max": 3102.7,
+      "median": 2407.3,
+      "p95": 3102.7,
+      "p99": 3102.7
+    },
+    "scenarioCounts": {
+      "POST to create a metadata relation": 3,
+      "POST with missing values": 4,
+      "DELETE with missing values": 2,
+      "GET with wrong id": 1
+    },
+    "errors": {},
+    "codes": {
+      "200": 14,
+      "201": 9,
+      "400": 4,
+      "404": 2
+    },
+    "matches": 0,
+    "customStats": {},
+    "counters": {},
+    "scenariosAvoided": 20,
+    "phases": [
+      {
+        "duration": 30,
+        "arrivalRate": 1,
+        "maxVusers": 1
+      }
+    ]
+  },
+  "intermediate": [
+    {
+      "timestamp": "2020-11-16T21:06:22.558Z",
+      "scenariosCreated": 3,
+      "scenariosCompleted": 2,
+      "requestsCompleted": 8,
+      "latency": {
+        "min": 119.5,
+        "max": 384.1,
+        "median": 177.9,
+        "p95": 384.1,
+        "p99": 384.1
+      },
+      "rps": {
+        "count": 8,
+        "mean": 0.89
+      },
+      "scenarioDuration": {
+        "min": 2366,
+        "max": 3102.7,
+        "median": 2734.3,
+        "p95": 3102.7,
+        "p99": 3102.7
+      },
+      "scenarioCounts": {
+        "POST to create a metadata relation": 1,
+        "POST with missing values": 1,
+        "DELETE with missing values": 1
+      },
+      "errors": {},
+      "codes": {
+        "200": 4,
+        "201": 3,
+        "400": 1
+      },
+      "matches": 0,
+      "latencies": [
+        384052349,
+        248441767,
+        143627998,
+        134698334,
+        119497077,
+        210381925,
+        145346331,
+        210468052
+      ],
+      "customStats": {},
+      "counters": {},
+      "concurrency": 1,
+      "pendingRequests": 0,
+      "scenariosAvoided": 6
+    },
+    {
+      "timestamp": "2020-11-16T21:06:32.555Z",
+      "scenariosCreated": 3,
+      "scenariosCompleted": 3,
+      "requestsCompleted": 12,
+      "latency": {
+        "min": 118.1,
+        "max": 385.9,
+        "median": 156.1,
+        "p95": 370.2,
+        "p99": 385.9
+      },
+      "rps": {
+        "count": 12,
+        "mean": 1.23
+      },
+      "scenarioDuration": {
+        "min": 2381.2,
+        "max": 3047.7,
+        "median": 2825.4,
+        "p95": 3047.7,
+        "p99": 3047.7
+      },
+      "scenarioCounts": {
+        "POST to create a metadata relation": 2,
+        "POST with missing values": 1
+      },
+      "errors": {},
+      "codes": {
+        "200": 5,
+        "201": 6,
+        "404": 1
+      },
+      "matches": 0,
+      "latencies": [
+        152453073,
+        222467798,
+        179053402,
+        137902696,
+        134454447,
+        122075726,
+        228872205,
+        159695655,
+        134190808,
+        385904430,
+        118111950,
+        216337264
+      ],
+      "customStats": {},
+      "counters": {},
+      "concurrency": 1,
+      "pendingRequests": 0,
+      "scenariosAvoided": 7
+    },
+    {
+      "timestamp": "2020-11-16T21:06:42.554Z",
+      "scenariosCreated": 3,
+      "scenariosCompleted": 4,
+      "requestsCompleted": 7,
+      "latency": {
+        "min": 147.9,
+        "max": 313.6,
+        "median": 153.2,
+        "p95": 313.6,
+        "p99": 313.6
+      },
+      "rps": {
+        "count": 7,
+        "mean": 0.72
+      },
+      "scenarioDuration": {
+        "min": 2378.9,
+        "max": 2471.7,
+        "median": 2407.3,
+        "p95": 2471.7,
+        "p99": 2471.7
+      },
+      "scenarioCounts": {
+        "DELETE with missing values": 1,
+        "POST with missing values": 1,
+        "GET with wrong id": 1
+      },
+      "errors": {},
+      "codes": {
+        "200": 4,
+        "400": 2,
+        "404": 1
+      },
+      "matches": 0,
+      "latencies": [
+        153181238,
+        268152089,
+        151421706,
+        313638030,
+        149796856,
+        220767271,
+        147877965
+      ],
+      "customStats": {},
+      "counters": {},
+      "concurrency": 0,
+      "pendingRequests": 0,
+      "scenariosAvoided": 7
+    },
+    {
+      "timestamp": "2020-11-16T21:06:45.075Z",
+      "scenariosCreated": 1,
+      "scenariosCompleted": 1,
+      "requestsCompleted": 2,
+      "latency": {
+        "min": 142.3,
+        "max": 226.1,
+        "median": 184.2,
+        "p95": 226.1,
+        "p99": 226.1
+      },
+      "rps": {
+        "count": 2,
+        "mean": 0.79
+      },
+      "scenarioDuration": {
+        "min": 2377.3,
+        "max": 2377.3,
+        "median": 2377.3,
+        "p95": 2377.3,
+        "p99": 2377.3
+      },
+      "scenarioCounts": {
+        "POST with missing values": 1
+      },
+      "errors": {},
+      "codes": {
+        "200": 1,
+        "400": 1
+      },
+      "matches": 0,
+      "latencies": [
+        226120296,
+        142346303
+      ],
+      "customStats": {},
+      "counters": {},
+      "concurrency": 0,
+      "pendingRequests": 0,
+      "scenariosAvoided": 0
+    }
+  ]
+}

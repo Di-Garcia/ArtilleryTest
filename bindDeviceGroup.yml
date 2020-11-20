@@ -1,0 +1,307 @@
+config:
+  target: "http:/"
+  plugins:
+    expect: {}
+  phases:
+    - duration: 30
+      arrivalRate: 1
+      maxVusers: 1
+  defaults:
+    headers:
+      authorization: "a"
+  processor: "./functions.js"
+  payload:
+    - path: "./mockData/bindGroupsDataMock.csv"
+      fields:
+        - "device_id"
+        - "group_id"
+      order: sequence
+      delimiter: ","
+      skipHeader: true
+
+    - path: "./mockData/groupManagement.csv"
+      fields:
+        - "description"
+        - "active"
+        - "newdescription"
+      order: sequence
+      delimiter: ","
+      skipHeader: true
+
+scenarios:
+  - name: "GET all Relation"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "pm-user-management:3000/api/v1/auth/login"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - log: "GET all"
+      - get:
+          url: "/system-management:8080/sm/api/v1/device-management/bind/groups"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          expect:
+            - statusCode: 200
+
+  - name: "POST and GET bindDevice"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - function: "generateRandomGroupId"
+      - log: "POST - create group: {{ id }}"
+      - post:
+          url: "/system-management:8080/sm/api/v1/group-management/groups"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            id: "{{ id }}"
+            description: "{{ description }}"
+            active: "{{ active }}"
+          capture:
+            - json: "$.id"
+              as: "groupIdPost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+
+      - function: "generateRandomId"
+      - log: "POST - create device: {{ id }}"
+      - post:
+          url: "/system-management:8080/sm/api/v1/device-management/devices/"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            id: "{{ id }}"
+          capture:
+            - json: "$.id"
+              as: "deviceIdPost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+            - hasProperty: id
+
+      - log: "POST to bind device {{ deviceIdPost }} and group {{ groupIdPost }}"
+      - post:
+          url: "/system-management:8080/sm/api/v1/device-management/bind/groups"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            device_id: "{{ deviceIdPost }}"
+            group_id: "{{ groupIdPost }}"
+          capture:
+            - json: "$.device_id"
+              as: "idDevPost"
+          expect:
+            - statusCode: 201
+
+      - log: "GET one device groups: {{idDevPost}}"
+      - get:
+          url: "/system-management:8080/sm/api/v1/device-management/bind/{{idDevPost}}/groups"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          capture:
+            - json: "$.device_id"
+              as: "idDevGet"
+            - json: "$.group_id"
+              as: "idGroupGet"
+          expect:
+            - statusCode: 200
+            - equals:
+                - "{{ deviceIdPost }}"
+                - "{{ idDevGet }}"
+            - equals:
+                - "{{ groupIdPost }}"
+                - "{{ idGroupGet }}"
+
+  - name: "POST and DELETE bindDevice"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - function: "generateRandomGroupId"
+      - log: "POST {{ id }}"
+      - post:
+          url: "/system-management:8080/sm/api/v1/group-management/groups"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            id: "{{ id }}"
+            description: "{{ description }}"
+            active: "{{ active }}"
+          capture:
+            - json: "$.id"
+              as: "groupIdPost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+
+      - function: "generateRandomId"
+      - log: "POST createDevice {{ id }}"
+      - post:
+          url: "/system-management:8080/sm/api/v1/device-management/devices/"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            id: "{{ id }}"
+          capture:
+            - json: "$.id"
+              as: "deviceIdPost"
+          expect:
+            - statusCode: 201
+            - contentType: json
+            - hasProperty: id
+
+      - log: "POST create bindGroups"
+      - post:
+          url: "/system-management:8080/sm/api/v1/device-management/bind/groups"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            device_id: "{{ deviceIdPost }}"
+            group_id: "{{ groupIdPost }}"
+          capture:
+            - json: "$.device_id"
+              as: "idDevPost"
+          expect:
+            - statusCode: 201
+
+      - log: "GET one device groups: {{idDevPost}}"
+      - get:
+          url: "/system-management:8080/sm/api/v1/device-management/bind/{{idDevPost}}/groups"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          expect:
+            - statusCode: 200
+
+      - log: "DELETE {{idDevPost}} bindGroups"
+      - delete:
+          url: "/system-management:8080/sm/api/v1/device-management/bind/{{idDevPost}}/groups"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          expect:
+            - statusCode: 204
+
+      - log: "GET one device groups: {{idDevPost}}"
+      - get:
+          url: "/system-management:8080/sm/api/v1/device-management/bind/{{idDevPost}}/groups"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          expect:
+            - statusCode: 404
+
+  - name: "GET with wrong groupid value"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - function: "generateRandomGroupId"
+      - log: "GET inexistent groupId: {{id}}999"
+      - get:
+          url: "/system-management:8080/sm/api/v1/device-management/bind/{{id}}999/groups"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            device_id: "{{ device_id }}"
+          capture:
+            - json: "$.device_id"
+              as: "idDevPost"
+          expect:
+            - statusCode: 404
+
+  - name: "POST bind/groups with missing values"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - log: "POST missing"
+      - post:
+          url: "/system-management:8080/sm/api/v1/device-management/bind/groups"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            device_id: "{{ device_id }}"
+          capture:
+            - json: "$.device_id"
+              as: "idDevPost"
+          expect:
+            - statusCode: 400
+
+  - name: "DELETE inexistent groupId: {{id}}999"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+
+      - function: "generateRandomGroupId"
+      - log: "DELETE {{id}}999 wrong"
+      - delete:
+          url: "/system-management:8080/sm/api/v1/device-management/bind/{{idDevPost}}999/groups"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          expect:
+            - statusCode: 404
