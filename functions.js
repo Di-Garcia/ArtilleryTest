@@ -1,290 +1,109 @@
 module.exports = {
     getResponseBody: getResponseBody,
-    generateRandomId: generateRandomId,
-    generateRandomName: generateRandomName,
-    generateRandomNewName: generateRandomNewName,
-    generateRandomNewValueWithRegex: generateRandomNewValueWithRegex,
-    generateRandomGroupId: generateRandomGroupId,
-    getRoutineBody: getRoutineBody,
-    updatedRoutineBody: updatedRoutineBody,
-    getRotineDailyScheduleBody: getRotineDailyScheduleBody,
-    getRotineWeeklyScheduleBody: getRotineWeeklyScheduleBody,
-    getUpdatedRotineDailyScheduleBody: getUpdatedRotineDailyScheduleBody,
-    getRotineDailyScheduleBodyGroup: getRotineDailyScheduleBodyGroup,
-    getRotineWeeklyScheduleBodyGroup: getRotineWeeklyScheduleBodyGroup,
-    getRotineScheduleIncompleteBody: getRotineScheduleIncompleteBody
-    
+    getRandomImagePath: getRandomImagePath,
+    getSampleNumber: getSampleNumber,
+    generateDate: generateDate,
+    getRandomGroupId: getRandomGroupId,
+    getMessageParams: getMessageParams
 };
+
 
 function getResponseBody(requestParams, response, context, ee, next) {
     context.vars.responseBody = response.body;
     return next();
 }
 
-function generateRandomId(userContext, events, done) {
+function getMessageParams(userContext, events, next) {
+    const types = [ 'bat-available-percentage', 'bat-capacity', 'bat-current-average', 'bat-current-now', 'bat-ischarging', 'cpu-iowait-used', 'cpu-nice-used', 'cpu-system-used', 'cpu-total-used', 'cpu-user-used', 'disk-available-bytes', 'disk-available-percentage', 'disk-usage-bytes', 'disk-usage-percentage', 'heart-hate-status', 'ram-app-used-bytes', 'ram-used-bytes', 'screen-brightness-percentage', 'time-drift'];
+    function randomValue(max) {
+        return (Math.random() * (max));
+    }
+    const parameters = (types) => {
+        const out = types.map(item => {
+            return {
+                type: item,
+                value: randomValue(9999),
+                ts: Date.now()
+            };
+        });
 
-    const randomNumberBeetween = (min, max) => {
-        return Math.floor(
-            Math.random() * (max - min) + min
-        );
+        return out;
     };
 
-    userContext.vars.id = randomNumberBeetween(1000, 99999);
-    return done();
-}
-
-function generateRandomGroupId(userContext, events, next) {
-
-    const randomNumberBeetween = (min, max) => {
-        return Math.floor(
-            Math.random() * (max - min) + min
-        );
+    const out = (parameters) => {
+        return {
+            message_type: 'params',
+            device_id: userContext.vars.device_id,
+            parameters: parameters
+        };
     };
 
-    userContext.vars.id = ('artillery_test_group_'+randomNumberBeetween(1, 9999));
+    userContext.vars.json_body = out(parameters(types));
     return next();
+
 }
 
-function generateRandomName(userContext, events, done) {
+function getRandomImagePath(userContext, events, done) {
+    const urls = [
+        'http://address:PORT/fs/files/protocol-manager/EXAMPLE.png'
+    ];
+
+    userContext.vars.image_path = urls[0];
+    return done();
+}
+
+function getSampleNumber(userContext, events, done) {
+    const idNum = userContext.vars.sample_number;
+    userContext.vars.sample_number = 'SN' + idNum;
+    return done();
+}
+
+function getRandomGroupId(userContext, events, next) {
+
+    const possibleGroups = (i) => {
+        const vec = [
+            'neverPicked',
+            'AW5',
+            'AW6',
+            'BIKE',
+            'GW3',
+            'GWA2',
+            'IP',
+            'K5',
+            'PH10',
+            'PM1',
+            'PM2',
+            'PM3',
+            'PM4',
+            'PM5',
+            'POH1',
+            'TML' ];
+        
+        return vec[i];
+    };
+
     const randomNumberBeetween = (min, max) => {
         return Math.floor(
             Math.random() * (max - min) + min
         );
     };
 
-    userContext.vars.name = 'artilleryMetadata_' + randomNumberBeetween(1000, 9999);
+    userContext.vars.group_name = possibleGroups(randomNumberBeetween(1,15));
+    return next();
+
+}
+
+function generateDate(userContext, events, done) {
+    var day = new Date();
+    var nextDay = new Date(day);
+    nextDay.setDate(day.getDate() + 1);
+
+    var random_start_date = nextDay.toJSON().slice(0,10).replace(/-/g,'-');
+
+    nextDay.setDate(day.getDate() + 1 + Math.floor(Math.random() * 10));
+    var random_end_date = nextDay.toJSON().slice(0,10).replace(/-/g,'-');
+
+    userContext.vars.start_date = random_start_date.toString();
+    userContext.vars.end_date = random_end_date.toString();
     return done();
-}
-
-function generateRandomNewName(userContext, events, done) {
-    const random_password = Math.floor(1000000 + Math.random() * 9000000);
-
-    userContext.vars.newname = userContext.vars.newname + random_password.toString();
-    return done();
-}
-
-function generateRandomNewValueWithRegex(userContext, events, done) {
-    const random_password = Math.floor(1000000 + Math.random() * 9000000);
-    let value = userContext.vars.regex;
-
-    userContext.vars.value = value.substring(1) + random_password.toString();
-    return done();
-}
-
-function updatedRoutineBody(userContext, events, next) {
-    const out = () => {
-        return {
-            description: 'UPDATED description test',
-            routine: {
-                functions: [
-                    {
-                        args: [
-                            {
-                                label: 'UPDATED protocol_source',
-                                value: 'http'
-                            },
-                            {
-                                label: 'UPDATED address_source',
-                                value: '/path/to/source'
-                            },
-                            {
-                                label: 'UPDATED protocol_target',
-                                value: 'localfs'
-                            },
-                            {
-                                label: 'UPDATED address_target',
-                                value: '/path/to/target'
-                            }
-                        ],
-                        function_type: 'pull'
-                    }
-                ]
-            }
-        };
-    };
-    userContext.vars.routineUpdatedBody = out();
-    next();
-}
-
-function getRoutineBody(userContext, events, next) {
-
-    const randomNumberBeetween = (min, max) => {
-        return Math.floor(
-            Math.random() * (max - min) + min
-        );
-    };
-    const randNum = randomNumberBeetween(300,999);
-    const out = () => {
-        return {
-            description: 'description test ' + randNum,
-            routine: {
-                functions: [
-                    {
-                        args: [
-                            {
-                                label: 'protocol_source',
-                                value: 'http'
-                            },
-                            {
-                                label: 'address_source',
-                                value: '/path/to/source'
-                            },
-                            {
-                                label: 'protocol_target',
-                                value: 'localfs'
-                            },
-                            {
-                                label: 'address_target',
-                                value: '/path/to/target'
-                            }
-                        ],
-                        function_type: 'pull'
-                    }
-                ]
-            },
-            active: true
-        };
-    };
-    userContext.vars.randNum = randNum;
-    userContext.vars.routineBody = out();
-    next();
-}
-
-function getRotineDailyScheduleBody(userContext, events, next) {
-    const currentDate = new Date();
-    const startDate = currentDate.toISOString().split('T')[0];
-    const endDate = new Date(currentDate.getTime() + (365 * 24 * 3600 * 1000)).toISOString().split('T')[0];
-    const scheduleTime = new Date(currentDate.getTime() + (30 * 60 * 1000)).toISOString().split('T')[1].split('.')[0];
-
-    const out = () => {
-        return {
-            device_id: userContext.vars.deviceIdPost,
-            routine_id: userContext.vars.routineIdPost,
-            start_date: startDate,
-            end_date: endDate,
-            schedule_time: scheduleTime,
-            duration: '00:30:00',
-            repeat: 'Daily',
-            retries: 5
-        };
-    };
-    
-    userContext.vars.bindRoutineBody = out();
-    next();
-}
-
-function getRotineDailyScheduleBodyGroup(userContext, events, next) {
-    const currentDate = new Date();
-    const startDate = currentDate.toISOString().split('T')[0];
-    const endDate = new Date(currentDate.getTime() + (365 * 24 * 3600 * 1000)).toISOString().split('T')[0];
-    const scheduleTime = new Date(currentDate.getTime() + (30 * 60 * 1000)).toISOString().split('T')[1].split('.')[0];
-
-    const out = () => {
-        return {
-            group_id: userContext.vars.groupIdPost,
-            routine_id: userContext.vars.routineIdPost,
-            start_date: startDate,
-            end_date: endDate,
-            schedule_time: scheduleTime,
-            duration: '00:30:00',
-            repeat: 'Daily',
-            retries: 5
-        };
-    };
-    
-    userContext.vars.bindRoutineBody = out();
-    next();
-}
-
-function getRotineWeeklyScheduleBody(userContext, events, next) {
-
-    const currentDate = new Date();
-    const startDate = currentDate.toISOString().split('T')[0];
-    const endDate = new Date(currentDate.getTime() + (365 * 24 * 3600 * 1000)).toISOString().split('T')[0];
-    const scheduleTime = new Date(currentDate.getTime() + (30 * 60 * 1000)).toISOString().split('T')[1].split('.')[0];
-
-    const out = () => {
-        return {
-            device_id: userContext.vars.deviceIdPost,
-            routine_id: userContext.vars.routineIdPost,
-            schedule_weekday: [ 'Wed', 'Thu' ],
-            start_date: startDate,
-            end_date: endDate,
-            schedule_time: scheduleTime,
-            duration: '00:35:00',
-            repeat: 'Weekly',
-            retries: 5
-        };
-    };
-    
-    userContext.vars.bindRoutineBody = out();
-    next();
-}
-
-function getRotineWeeklyScheduleBodyGroup(userContext, events, next) {
-
-    const currentDate = new Date();
-    const startDate = currentDate.toISOString().split('T')[0];
-    const endDate = new Date(currentDate.getTime() + (365 * 24 * 3600 * 1000)).toISOString().split('T')[0];
-    const scheduleTime = new Date(currentDate.getTime() + (30 * 60 * 1000)).toISOString().split('T')[1].split('.')[0];
-
-    const out = () => {
-        return {
-            group_id: userContext.vars.groupIdPost,
-            routine_id: userContext.vars.routineIdPost,
-            schedule_weekday: [ 'Wed', 'Thu' ],
-            start_date: startDate,
-            end_date: endDate,
-            schedule_time: scheduleTime,
-            duration: '00:35:00',
-            repeat: 'Weekly',
-            retries: 5
-        };
-    };
-    
-    userContext.vars.bindRoutineBody = out();
-    next();
-}
-
-function getUpdatedRotineDailyScheduleBody(userContext, events, next) {
-    const currentDate = new Date();
-    const startDate = currentDate.toISOString().split('T')[0];
-    const endDate = new Date(currentDate.getTime() + (2 * 365 * 24 * 3600 * 1000)).toISOString().split('T')[0];
-    const scheduleTime = new Date(currentDate.getTime() + (30 * 60 * 1000)).toISOString().split('T')[1].split('.')[0];
-
-    const out = () => {
-        return {
-            routine_id: userContext.vars.routineIdPost,
-            start_date: startDate,
-            end_date: endDate,
-            schedule_time: scheduleTime,
-            duration: '00:10:00',
-            repeat: 'Daily',
-            retries: 5
-        };
-    };
-    
-    userContext.vars.bindRoutineBody = out();
-    next();
-}
-
-function getRotineScheduleIncompleteBody(userContext, events, next) {
-    const currentDate = new Date();
-    const startDate = currentDate.toISOString().split('T')[0];
-    const endDate = new Date(currentDate.getTime() + (365 * 24 * 3600 * 1000)).toISOString().split('T')[0];
-    const scheduleTime = new Date(currentDate.getTime() + (30 * 60 * 1000)).toISOString().split('T')[1].split('.')[0];
-
-    const out = () => {
-        return {
-            start_date: startDate,
-            end_date: endDate,
-            schedule_time: scheduleTime,
-            duration: '00:30:00',
-            repeat: 'Daily',
-            retries: 5
-        };
-    };
-    
-    userContext.vars.bindRoutineBody = out();
-    next();
 }

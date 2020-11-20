@@ -1,0 +1,57 @@
+config:
+    target: 'http:/'
+    plugins:
+        expect: {}    
+    phases:
+      - duration: 300
+        arrivalRate: 1
+        maxVusers: 1
+
+    defaults:
+      headers:
+        authorization: 'a'
+    processor: "functions.js"
+    payload:
+        -
+            path: 'devices.csv'
+            fields:
+                - 'device_id'
+            order: sequence
+            delimiter: ','
+            skipHeader: true
+scenarios:
+    - 
+        name: 'Create device_id: {{ device_id }}'
+        flow:
+            - log: 'POST Login'
+            - post:
+                url: '/pm-user-management:3000/api/v1/auth/login'
+                json:
+                    username: 'adriana'
+                    password: '123456'
+                capture:
+                    - json: '$.token.access_token'
+                      as: 'auth_token'
+                expect:
+                    - statusCode: 200
+                    - contentType: json
+                    - hasProperty: token
+
+            - log: 'PATCH bind device metadata Sample Number device_id: {{ device_id }}'
+            - patch:
+                url: '/system-management:8080/sm/api/v1/device-management/bind/{{ device_id }}/metadata/1'
+                headers:
+                  authorization: 'Bearer {{ auth_token }}'
+                json:
+                    value: 'SN{{ device_id }}'
+                    force: true
+                expect:
+                    - statusCode: 200
+                    - contentType: json
+                    - hasProperty: device_id
+                    - hasProperty: metadata_id
+                    - hasProperty: value
+                    - hasProperty: regex_integrity
+                    - hasProperty: created_at
+                    - hasProperty: updated_at
+    

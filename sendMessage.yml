@@ -1,0 +1,33 @@
+config:
+    target: 'http:/'
+    plugins:
+        expect: {}    
+    phases:
+      - duration: 300
+        arrivalRate: 20
+        maxVusers: 50
+    defaults:
+      headers:
+        authorization: 'a'
+    processor: 'functions.js'
+    payload:
+        -
+            path: 'devices.csv'
+            fields:
+                - 'device_id'
+            order: sequence
+            delimiter: ','
+            skipHeader: true
+
+scenarios:
+    - 
+        name: 'POST message param'
+        flow:
+            - function: 'getMessageParams'
+            - log: 'POST param'
+            - post:
+                url: '/message-management:8080/mm/api/v1/message-management/publisher'
+                json: '{{ json_body}}'
+
+                expect:
+                    - statusCode: 200

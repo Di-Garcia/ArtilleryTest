@@ -1,0 +1,22 @@
+"key","full_description","short_description","unit","unit_abbreviation","type","active"
+bat-available-percentage,bat-available-percentage description,bat-available-percentage description,percentage,%,integer,1
+bat-capacity,bat-capacity description,bat-capacity description,percentage,%,integer,1
+bat-current-average,bat-current-average description,bat-current-average description,microampere,uA,integer,1
+bat-current-now,bat-current-now description,bat-current-now description,microampere,uA,integer,1
+bat-ischarging,bat-ischarging description,bat-ischarging description, , ,boolean,1
+cpu-iowait-used,cpu-iowait-used description,cpu-iowait-used description,percentage,%,integer,1
+cpu-nice-used,cpu-nice-used description,cpu-nice-used description,percentage,%,integer,1
+cpu-system-used,cpu-system-used description,cpu-system-used description,percentage,%,integer,1
+cpu-total-used,cpu-total-used description,cpu-total-used description,percentage,%,integer,1
+cpu-user-used,cpu-user-used description,cpu-user-used description,percentage,%,integer,1
+disk-available-bytes,disk-available-bytes description,disk-available-bytes description,bytes,b,integer,1
+disk-available-percentage,disk-available-percentage description,disk-available-percentage description,percentage,%,integer,1
+disk-usage-bytes,disk-usage-bytes description,disk-usage-bytes description,bytes,b,integer,1
+disk-usage-percentage,disk-usage-percentage description,disk-usage-percentage description,percentage,%,integer,1
+heart-rate,heart-hate description,heart-hate description,Beats Per Minute,BPM,integer,1
+ram-app-used-bytes,ram-app-used-bytes description,ram-app-used-bytes description,bytes,b,integer,1
+ram-used-bytes,ram-used-bytes description,ram-used-bytes description,bytes,b,integer,1
+screen-brightness-percentage,screen-brightness-percentage description,screen-brightness-percentage description,percentage,%,integer,1
+screen-rotation-enabled,screen-rotation-enabled description,screen-rotation-enabled description, , ,boolean,1
+time-drift,time-drift description,time-drift description,milliseconds,ms,integer,1
+wifi-level,wifi-level description,wifi-level description, , ,integer,1

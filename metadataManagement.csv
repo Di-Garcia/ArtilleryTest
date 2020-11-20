@@ -1,0 +1,17 @@
+id,name,description,regex,required,newname,desc2,newregex,newrequired
+9,Teddi,Biostatistician I,^org,true,Larmouth,France,org$,false
+10,Dominga,Financial Analyst,^Mil,false,Collisson,Indonesia,mil$,true
+11,Noll,Product Engineer,^Ol,false,Kimm,Sweden,ol$,true
+12,Beverlee,Geologist II,^org,true,Croneen,Peru,org$,false
+13,Graham,Marketing Manager,^Mil,false,Witts,Philippines,mil$,true
+14,Emiline,Chemical Engineer,^Ol,true,Andrioni,North Korea,ol$,true
+15,Alfred,Assistant Media Planner,^org,false,Rattry,Thailand,org$,true
+16,Marci,Account Coordinator,^Mil,true,Climson,Czech Republic,mil$,false
+17,Cecily,Junior Executive,^Ol,true,Temple,Russia,ol$,false
+18,Jaime,Occupational Therapist,^org,false,Mariel,China,org$,false
+19,Warren,Chemical Engineer,^Mil,false,Daugherty,China,mil$,true
+20,Romeo,Occupational Therapist,^Ol,true,Dansken,Portugal,ol$,true
+21,Jessi,VP Product Management,^org,true,Puddefoot,Poland,org$,false
+22,Fonz,Analyst Programmer,^Mil,false,felip,Thailand,mil$,true
+23,Meredith,Office Assistant I,^Ol,true,Skeat,South Korea,ol$,true
+24,Tab,Quality Engineer,^org,false,McCathie,China,org$,true

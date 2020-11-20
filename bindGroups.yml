@@ -1,0 +1,46 @@
+config:
+  target: "http:/"
+  plugins:
+    expect: {}
+  phases:
+    - duration: 700
+      arrivalRate: 1
+      maxVusers: 1
+
+  defaults:
+    headers:
+      authorization: "a"
+  processor: "functions.js"
+  payload:
+    - path: "devices.csv"
+      fields:
+        - "device_id"
+      order: sequence
+      delimiter: ","
+      skipHeader: true
+
+scenarios:
+  - name: "Bind Groups to Devices"
+    flow:
+      - log: "POST Login"
+      - post:
+          url: "/pm-user-management:3000/api/v1/auth/login"
+          json:
+            username: "adriana"
+            password: "123456"
+          capture:
+            - json: "$.token.access_token"
+              as: "auth_token"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: token
+      - function: "getRandomGroupId"
+      - log: "POST bind device: {{ device_id }} with group: {{ group_name }}"
+      - post:
+          url: "/system-management:8080/sm/api/v1/device-management/bind/groups"
+          headers:
+            authorization: "Bearer {{ auth_token }}"
+          json:
+            device_id: "{{ device_id }}"
+            group_id: "{{ group_name }}"

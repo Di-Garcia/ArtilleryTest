@@ -1,0 +1,71 @@
+config:
+    target: 'http:/'
+    plugins:
+        expect: {}    
+    phases:
+      - duration: 500
+        arrivalRate: 1
+        maxVusers: 1
+
+    defaults:
+      headers:
+        authorization: 'a'
+    processor: "functions.js"
+    payload:
+        -
+            path: 'devices.csv'
+            fields:
+                - 'device_id'
+            order: sequence
+            delimiter: ','
+            skipHeader: true
+        -
+            path: 'groups.csv'
+            fields:
+                - 'group_id'
+            order: sequence
+            delimiter: ','
+            skipHeader: true
+
+scenarios:
+    - 
+        name: 'Create device_id: {{ device_id }}'
+        flow:
+            - log: 'POST Login'
+            - post:
+                url: '/pm-user-management:3000/api/v1/auth/login'
+                json:
+                    username: 'adriana'
+                    password: '123456'
+                capture:
+                    - json: '$.token.access_token'
+                      as: 'auth_token'
+                expect:
+                    - statusCode: 200
+                    - contentType: json
+                    - hasProperty: token
+
+            - function: 'getRandomImagePath'
+            - log: 'POST deviceId: {{ device_id }}'
+            - post:
+                url: '/system-management:8080/sm/api/v1/device-management/devices'
+                headers:
+                    authorization: 'Bearer {{ auth_token }}'
+                json:
+                    id: '{{ device_id }}'
+                    image_path: '{{ image_path }}'
+                capture:
+                    - json: '$.id'
+                    - as: 'idPost'
+                expect:
+                    - statusCode: 201
+                    - contentType: json
+                    - hasProperty: id
+                    - hasProperty: will_variables
+                    - hasProperty: active
+                    - hasProperty: image_path
+                    - hasProperty: created_at
+                    - hasProperty: updated_at
+                    - equals:
+                        - '{{ id }}'
+                        - '{{ idPost }}'
